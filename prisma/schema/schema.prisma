@@ -1,0 +1,115 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  previewFeatures = ["prismaSchemaFolder"]
+
+}
+
+datasource db {
+  provider     = "postgresql"
+  // NOTE: When using mysql or sqlserver, uncomment the @db.Text annotations in model Account below
+  // Further reading:
+  // https://next-auth.js.org/adapters/prisma#create-the-prisma-schema
+  // https://www.prisma.io/docs/reference/api-reference/prisma-schema-reference#string
+  url          = env("DATABASE_URL")
+  
+}
+
+
+
+
+
+model Store {
+  id              String               @id @default(cuid())
+  name            String
+  slug            String?              @unique
+  ownerId         String
+  logo            String?
+ 
+
+  addressId       String?              @unique
+  address         Address?             @relation("StoreToAddress", fields: [addressId], references: [id], onDelete: Cascade)
+
+  products    Product[]    @relation("StoreToProduct")
+  orders      Order[]      @relation("StoreToOrder")
+  attributes  Attribute[]
+  sales       Sale[]
+  coupons     Coupon[]
+  invoices    Invoice[]    @relation("StoreToInvoice")
+  cart        Cart[]       @relation("StoreToCart")
+  collections Collection[] @relation("StoreToCollection")
+  requests    Request[]    @relation("StoreToRequest")
+  customers   Customer[]  
+  discounts   Discount[]
+  productRequests ProductRequest[] 
+
+  hasFreeShipping         Boolean @default(true)
+  minFreeShipping         Float?  @default(0)
+
+  hasPickup               Boolean @default(false)
+  pickupInstructions      String? @db.Text
+
+  hasFlatRate             Boolean @default(false)
+  flatRateAmount          Float?  @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  socialMedia SocialMediaLink[]
+
+  contactEmail    String?
+  contactPhone    String?
+  showFullAddress Boolean @default(false)
+
+  customProductTypes String[]
+
+  areItemsRefundable      Boolean @default(false)
+  areItemsExchangeable    Boolean @default(false)
+
+  blogPosts BlogPost[]
+
+
+}
+
+model Image {
+  id        String   @id @default(cuid())
+
+
+
+
+  reviewId String?
+  review   Review? @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+
+  url       String // URL of the image
+  alt       String?
+  caption   String?
+  title     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+
+
+  @@index([reviewId])
+}
+
+
+enum SocialMediaType {
+  FACEBOOK
+  INSTAGRAM
+  TWITTER
+  TIKTOK
+  YOUTUBE
+  LINKEDIN
+}
+
+model SocialMediaLink {
+  id String @id @default(cuid())
+  storeId String
+  store Store @relation(fields: [storeId], references: [id])
+  url String
+  platform SocialMediaType
+
+  @@index([storeId])
+}

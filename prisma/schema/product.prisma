@@ -1,0 +1,96 @@
+model Attribute {
+  id            String        @id @default(cuid())
+  storeId       String
+  store         Store         @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  productId     String
+  product       Product       @relation(fields: [productId], references: [id], onDelete: Cascade)
+  name          String        @default("Attribute")
+  values        String[]
+
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+}
+
+
+
+model Product {
+  id        String        @id @default(cuid())
+  status    ProductStatus @default(DRAFT)
+  type      ProductType   @default(PHYSICAL)
+
+  slug      String       @unique
+
+  storeId   String
+  store     Store         @relation("StoreToProduct", fields: [storeId], references: [id])
+
+  name            String
+  description     String  @db.Text
+  additionalInfo  Json?
+
+  attributes      Attribute[]
+
+  isFeatured      Boolean         @default(false)
+
+  featuredImage   String
+  images          String[]
+
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  deletedAt   DateTime?
+
+  variants    Variation[]
+  collections Collection[]
+
+  coupons   Coupon[]
+  sales     Sale[]
+  reviews   Review[]
+  invoiceItems InvoiceItem[]
+  requestItems RequestItem[]
+
+  @@index([storeId])
+  @@index([slug])
+}
+
+model Variation {
+  id          String      @id @default(cuid())
+  productId   String
+  product     Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  name                  String    @default("Default")
+  values                String[]
+  stock                 Int       @default(1)
+  manageStock           Boolean   @default(false)
+  priceInCents          Int
+  compareAtPriceInCents Int?
+  sku                   String?  @unique
+  imageUrl              String?
+
+  discounts             Discount[]
+  cartItems             CartItem[]
+  orderItems            OrderItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+
+  @@index([productId])
+}
+
+enum ProductStatus {
+  DRAFT
+  ACTIVE
+  ARCHIVED
+  SOLD_OUT
+  CUSTOM
+}
+
+enum InventoryPolicy {
+  CONTINUE
+  DENY
+}
+
+enum ProductType {
+  PHYSICAL
+  DIGITAL
+  SERVICE
+}

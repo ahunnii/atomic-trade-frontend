@@ -1,0 +1,165 @@
+enum OrderType {
+  ONLINE_SHIP
+  ONLINE_PICKUP
+  IN_PERSON
+  DRAFT
+  MANUAL_SHIP
+  MANUAL_PICKUP
+}
+
+enum OrderStatus {
+  DRAFT
+  PENDING
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  COMPLETED
+  CANCELLED
+  REFUNDED
+  PARTIAL_REFUND
+}
+
+enum OrderPaymentStatus {
+  PAID
+  PARTIAL_PAYMENT
+  PENDING
+  REFUNDED
+  VOIDED
+  EXPIRED
+}
+
+enum OrderFulfillmentStatus {
+  FULFILLED
+  IN_PROGRESS
+  ON_HOLD
+  PARTIAL_FULFILLMENT
+  RESTOCKED
+  PENDING
+}
+
+
+
+model Order {
+  id              String @id @default(cuid())
+  storeId         String
+  store           Store  @relation("StoreToOrder", fields: [storeId], references: [id])
+
+  notes           String? @db.Text
+  tags            String[]
+  orderItems      OrderItem[]
+  timeline        TimelineEvent[]
+  payments        Payment[]
+
+
+  fulfillmentId   String? @unique
+  fulfillment     Fulfillment? @relation(fields: [fulfillmentId], references: [id], onDelete: SetNull)
+
+  paidInFull      Boolean @default(false)
+  paidInFullAt    DateTime?
+
+  paymentStatus   OrderPaymentStatus @default(PENDING)
+  fulfillmentStatus OrderFulfillmentStatus @default(PENDING)
+
+  isTaxExempt     Boolean @default(false)
+  isRefundable    Boolean @default(false)
+
+  orderNumber       String @default(cuid()) @unique
+  authorizationCode String @default(cuid())
+
+  status     OrderStatus     @default(DRAFT)
+  type       OrderType       @default(ONLINE_SHIP)
+
+  subtotalInCents Int @default(0)
+  taxInCents      Int @default(0)
+  shippingInCents Int @default(0)
+  totalInCents    Int @default(0)
+  discountInCents Int @default(0)
+  feeInCents      Int @default(0)
+
+  receiptLink String @default("")
+
+  email     String?      @default("")
+  phone     String?     @default("")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+
+  customerId String?
+  customer   Customer? @relation(fields: [customerId], references: [id])
+
+ 
+  productRequests       ProductRequest[]
+
+  shippingAddressId     String? @unique
+  shippingAddress       Address? @relation("OrderToShippingAddress", fields: [shippingAddressId], references: [id], onDelete: SetNull)
+
+  billingAddressId      String? @unique
+  billingAddress        Address? @relation("OrderToBillingAddress", fields: [billingAddressId], references: [id], onDelete: SetNull)
+
+  areAddressesSame      Boolean @default(false)
+
+  metadata   Json?
+
+  @@index([storeId])
+  @@index([customerId])
+  @@index([shippingAddressId])
+  @@index([billingAddressId])
+}
+
+model OrderItem {
+  id            String        @id @default(cuid())
+  orderId       String
+  order         Order         @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  name              String        @default("")    //Name of the item (i.e. "T-Shirt")
+  description       String?       @db.Text        //Description of the item (i.e. "Blue, Medium")
+  quantity          Int           @default(1)
+  quantityFulfilled Int           @default(0)
+
+  isFulfilled Boolean @default(false)
+
+  unitPriceInCents        Int
+  discountInCents         Int
+  totalPriceInCents       Int  // computed = (unitPrice * quantity) - discount
+
+  metadata Json?
+
+  isPhysical  Boolean @default(false)
+  isTaxable   Boolean @default(false)
+
+  requestItem   RequestItem? @relation(fields: [requestItemId], references: [id])
+  requestItemId String?
+
+  packageItems PackageItem[]
+
+
+
+  saleId        String?
+  sale          Sale?         @relation(fields: [saleId], references: [id])
+
+  variantId     String?
+  variant       Variation?    @relation(fields: [variantId], references: [id])
+
+  @@index([orderId])
+  @@index([variantId])
+  @@index([saleId])
+  @@index([requestItemId])
+}
+
+model TimelineEvent {
+  id            String            @id @default(cuid())
+  title         String
+  isEditable    Boolean           @default(false)
+  description   String?           @db.Text
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+  order         Order?            @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderId       String?
+
+  @@index([orderId])
+}
+
+
+
+

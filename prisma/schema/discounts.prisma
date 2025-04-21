@@ -1,0 +1,170 @@
+model Sale {
+  id String @id @default(cuid())
+
+  storeId String
+  store   Store  @relation(fields: [storeId], references: [id])
+
+  name    String
+
+  type    SaleDiscount @default(PERCENTAGE)
+  variant SaleType     @default(STANDARD)
+
+  products        Product[]
+  collections     Collection[]
+  orderItems      OrderItem[]
+
+  amount Int
+
+  
+  usesPerOrder Int?
+
+  quantityX Int?
+  amountX Int?
+
+  quantityY Int?
+  amountY Int?
+
+
+  minimumSubtotal Int? @default(0)
+  minimumItems    Int? @default(0)
+
+  startsAt  DateTime?
+  endsAt    DateTime?
+  deletedAt DateTime?
+
+  isActive Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([storeId])
+}
+
+model Coupon {
+  id                String @id @default(cuid())
+  storeId           String
+  store             Store  @relation(fields: [storeId], references: [id])
+
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  deletedAt         DateTime?
+  startsAt          DateTime?
+  endsAt            DateTime?
+
+  totalUses         Int? 
+  limitPerCustomer  Int?
+  uses              Int? @default(0)
+  
+  useWithSale       Boolean @default(true)
+
+  isActive          Boolean @default(true)
+
+  code              String     @unique
+  name              String
+  discountAmount    Int        @default(0)
+  discountType      CouponType @default(PERCENTAGE)
+
+  allProducts       Boolean @default(false)
+  details           String? @db.Text
+  minimumSubtotal   Int?
+  amountX           Int?
+  amountY           Int?
+
+  oncePerOrder      Boolean @default(false)
+
+
+  
+  product           Product? @relation(fields: [productId], references: [id])
+  productId         String?
+
+  collection        Collection? @relation(fields: [collectionId], references: [id])
+  collectionId      String?
+
+  @@index([storeId])
+  @@index([productId])
+  @@index([collectionId])
+}
+
+
+enum SaleType {
+  STANDARD
+  BUY_X_GET_Y
+}
+
+enum SaleDiscount {
+  PERCENTAGE
+  FIXED
+  EXACT
+  FREE
+}
+
+enum CouponType {
+  PERCENTAGE
+  FIXED
+  FREE_SHIPPING
+  SALE_PRICE
+  BUY_X_GET_Y
+}
+
+
+
+model Discount {
+  id String @id @default(cuid())
+  code String @unique
+  description String? @db.Text
+
+  type DiscountType @default(PRODUCT)
+
+  amountType  DiscountAmountType @default(PERCENTAGE) // Fixed? Assume in cents
+  amount      Int
+
+  countryCodes      String[]
+
+  variants          Variation[]
+  collections       Collection[]
+  customers         Customer[]
+
+  minimumPurchaseInCents  Int?
+  minimumQuantity         Int?
+
+  isAutomatic                   Boolean @default(false)
+
+  combineWithProductDiscounts   Boolean @default(false)
+  combineWithOrderDiscounts     Boolean @default(false)
+  combineWithShippingDiscounts  Boolean @default(false)
+  limitOncePerCustomer          Boolean @default(false)
+
+  applyToOrder                  Boolean @default(false)  //If True, apply just to order. If false, apply to collection / product ids (if any)
+  applyToShipping               Boolean @default(false)
+  applyToAllProducts            Boolean @default(false)
+  applyToAllCountries           Boolean @default(false)
+
+  maximumUses Int?
+  maximumAmountForShippingInCents Int?
+
+  uses Int? @default(0)
+
+  startsAt DateTime
+  endsAt DateTime?
+
+  isActive Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  storeId String
+  store   Store  @relation(fields: [storeId], references: [id])
+
+  @@index([storeId])
+}
+
+enum DiscountAmountType {
+  PERCENTAGE
+  FIXED
+}
+
+enum DiscountType {
+  PRODUCT
+  ORDER
+  SHIPPING
+}

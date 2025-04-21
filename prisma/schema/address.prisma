@@ -1,0 +1,35 @@
+model Address {
+  id            String  @id @default(cuid())
+  firstName     String?
+  lastName      String?
+  phone         String?
+  formatted     String
+  street        String
+  additional    String?
+  city          String
+  state         String
+  postalCode    String
+  country       String
+
+  store           Store?  @relation("StoreToAddress")
+  // billingOrder    Payment?
+  // shippingOrder   Fulfillment? 
+
+  isDefault Boolean?
+
+  customerId String?
+  customer   Customer? @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  userId String?
+  user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+
+  shippingOrder Order? @relation("OrderToShippingAddress")
+  billingOrder Order? @relation("OrderToBillingAddress")
+  package     Package?
+
+
+  @@index([userId])
+  @@index([customerId])
+  
+}

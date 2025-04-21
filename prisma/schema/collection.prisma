@@ -1,0 +1,30 @@
+model Collection {
+  id              String    @id @default(cuid())
+  status          CollectionStatus @default(DRAFT)
+  storeId         String
+  store           Store     @relation("StoreToCollection", fields: [storeId], references: [id])
+
+
+  imageUrl        String    @default("/placeholder-image.webp")
+  
+  isFeatured      Boolean   @default(false)
+  name            String    @unique
+  description     String?   @db.Text
+  slug            String    @unique
+  products        Product[]
+  sales           Sale[]
+  discounts       Discount[]
+  coupons         Coupon[]
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  archivedAt      DateTime?
+
+  @@index([storeId])
+}
+
+
+enum CollectionStatus {
+  DRAFT
+  ACTIVE
+  ARCHIVED
+}
