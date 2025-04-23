@@ -14,7 +14,7 @@ const Footer: React.FC = () => {
   };
 
   return (
-    <footer className="bg-gray-900 px-4 py-12 text-white">
+    <footer className="border-t border-gray-400/25 px-4 py-12">
       <div className="mx-auto grid max-w-7xl grid-cols-1 gap-8 md:grid-cols-4">
         {/* Get Help Section */}
         <div>
@@ -180,7 +180,7 @@ const Footer: React.FC = () => {
       </div>
 
       {/* Bottom Section */}
-      <div className="mx-auto mt-8 max-w-7xl border-t border-gray-800 pt-8">
+      <div className="mx-auto mt-8 max-w-7xl border-gray-400 pt-8">
         <div className="flex flex-col items-center justify-between md:flex-row">
           <p className="text-sm text-gray-400">
             © 2024 Atomic Trade. All rights reserved.

@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import type { BlogPost } from "@prisma/client";
+import type { BlogPost, Collection } from "@prisma/client";
 import { ProductGrid } from "~/app/_components/product-grid.tsx";
 import Footer from "~/components/layout/footer";
 import HeroSection from "~/components/layout/hero";
@@ -30,7 +30,7 @@ export default async function Home() {
         <ImageHero />
         {/* <HeroSection /> */}
         <ProductGrid products={products} />
-        <CollectionSection items={collections} />
+        <CollectionSection items={collections as unknown as Collection[]} />
         <BlogPreviewSection
           blogPreviews={blogPreviews as (BlogPost & { content: string })[]}
         />

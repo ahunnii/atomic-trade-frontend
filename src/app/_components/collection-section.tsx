@@ -41,7 +41,11 @@ export default function CollectionSection({ items }: CollectionSectionProps) {
             >
               <div className="relative aspect-[3/4] h-full w-full">
                 <Image
-                  src={`${env.NEXT_PUBLIC_STORAGE_URL}/misc/${item.imageUrl}`}
+                  src={
+                    item.imageUrl.startsWith("https://")
+                      ? item.imageUrl
+                      : `${env.NEXT_PUBLIC_STORAGE_URL}/misc/${item.imageUrl}`
+                  }
                   alt={item.name}
                   fill
                   className="object-cover object-center"

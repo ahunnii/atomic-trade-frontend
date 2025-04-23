@@ -1,67 +1,126 @@
+import type { Product, Variation } from "@prisma/client";
 import Image from "next/image";
+import { useState } from "react";
+import { env } from "~/env";
+import { getCartId } from "~/server/actions/cart";
+import { api } from "~/trpc/react";
 import { formatCurrency } from "~/utils/format-currency";
+import { AddToCartButton } from "./add-to-cart-button";
 
-interface ProductCardProps {
-  title: string;
-  price: number;
-  imageUrl: string;
-  sizes?: string[];
-  selectedSize?: string;
-  onSizeSelect?: (size: string) => void;
-}
+type Props = {
+  product: Product & { variants: Variation[] };
+  hasSale?: boolean;
+  lowestPrice?: number;
+  lowestCompareAtPrice?: number;
+  hasDifferentPrices?: boolean;
+};
 
 export function ProductCard({
-  title,
-  price,
-  imageUrl,
-  sizes,
-  selectedSize,
-  onSizeSelect,
-}: ProductCardProps) {
+  product,
+  hasSale,
+  hasDifferentPrices,
+  lowestPrice,
+  lowestCompareAtPrice,
+}: Props) {
+  // const apiUtils = api.useUtils();
+  const [selectedVariant, setSelectedVariant] = useState<Variation | null>(
+    null,
+  );
+
+  // const updateCart = api.cart.update.useMutation({
+  //   onSuccess: () => {
+  //     void apiUtils.cart.invalidate();
+  //   },
+  // });
+
+  // const addToCart = async () => {
+  //   const cartId = await getCartId();
+  //   await updateCart.mutateAsync({
+  //     cartId,
+  //     variantId: selectedVariant?.id ?? "",
+  //     quantity: 1,
+  //   });
+  // };
+
   return (
-    <div className="w-full max-w-sm overflow-hidden rounded-lg bg-white shadow-sm transition-shadow duration-200 hover:shadow-md">
-      <div className="relative aspect-square w-full">
+    <div className="flex flex-col">
+      <div className="relative mb-4 flex aspect-square items-center justify-center">
         <Image
-          src={imageUrl}
-          alt={title}
+          src={`${env.NEXT_PUBLIC_STORAGE_URL}/products/${product.featuredImage}`}
+          alt={product.name}
           fill
-          className="object-cover"
-          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          className="rounded-lg object-cover object-center"
         />
-      </div>
-
-      <div className="p-4">
-        <h3 className="mb-2 text-lg font-medium text-gray-900">{title}</h3>
-        <p className="mb-4 text-xl font-semibold text-gray-900">
-          {formatCurrency(price)}
-        </p>
-
-        {sizes && (
-          <div className="mb-4">
-            <label htmlFor="size-select" className="sr-only">
-              Select size
-            </label>
-            <select
-              id="size-select"
-              value={selectedSize}
-              onChange={(e) => onSizeSelect?.(e.target.value)}
-              className="w-full rounded-md border border-gray-300 bg-white p-2 text-gray-900 focus:ring-2 focus:ring-black focus:outline-none"
-              aria-label="Select size"
-            >
-              <option value="">Select Size</option>
-              {sizes.map((size) => (
-                <option key={size} value={size}>
-                  {size}
-                </option>
-              ))}
-            </select>
+        {hasSale && (
+          <div className="absolute top-2 left-2 rounded bg-red-600 px-2 py-1 text-xs font-bold text-white">
+            SALE
           </div>
         )}
-
-        <button className="w-full rounded-md bg-black px-4 py-3 font-medium text-white transition-colors duration-200 hover:bg-gray-800">
-          Add to Cart
-        </button>
       </div>
+
+      <h3 className="text-lg font-medium">{product.name}</h3>
+      <div className="mb-4">
+        {selectedVariant ? (
+          selectedVariant.compareAtPriceInCents ? (
+            <div className="flex items-center gap-2">
+              <p className="font-medium text-red-600">
+                {formatCurrency(selectedVariant.priceInCents / 100)}
+              </p>
+              <p className="text-gray-500 line-through">
+                {formatCurrency(selectedVariant.compareAtPriceInCents / 100)}
+              </p>
+            </div>
+          ) : (
+            <p className="text-gray-600">
+              {formatCurrency(selectedVariant.priceInCents / 100)}
+            </p>
+          )
+        ) : lowestCompareAtPrice && lowestCompareAtPrice > 0 ? (
+          <div className="flex items-center gap-2">
+            <p className="font-medium text-red-600">
+              {formatCurrency((lowestPrice ?? 0) / 100)}
+            </p>
+            <p className="text-gray-500 line-through">
+              {formatCurrency(lowestCompareAtPrice / 100)}
+            </p>
+          </div>
+        ) : hasDifferentPrices ? (
+          <p className="text-gray-600">
+            From {formatCurrency((lowestPrice ?? 0) / 100)}
+          </p>
+        ) : (
+          <p className="text-gray-600">
+            {formatCurrency((lowestPrice ?? 0) / 100)}
+          </p>
+        )}
+      </div>
+
+      <select
+        value={selectedVariant?.id}
+        onChange={(e) =>
+          setSelectedVariant(
+            product.variants.find((v) => v.id === e.target.value) ?? null,
+          )
+        }
+        className="mb-4 rounded-md border bg-white p-2"
+        aria-label={`Select variant for ${product.name}`}
+      >
+        <option value="">Select Variant</option>
+        {product.variants.map((variant) => (
+          <option key={variant.id} value={variant.id}>
+            {variant.name}
+          </option>
+        ))}
+      </select>
+
+      {/* <button
+        className="rounded-md bg-black px-6 py-3 text-white transition-colors hover:bg-gray-800"
+        onClick={addToCart}
+      >
+        Add to Cart
+      </button> */}
+
+      <AddToCartButton variantId={selectedVariant?.id} quantity={1} />
     </div>
   );
 }

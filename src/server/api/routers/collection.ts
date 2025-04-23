@@ -21,6 +21,90 @@ export const collectionRouter = createTRPCRouter({
       },
     });
 
-    return collections;
+    //Tack on "All Products" to the collections
+
+    const allProducts = await ctx.db.product.findMany({
+      where: {
+        store: { slug: storeSlug },
+        status: "ACTIVE",
+      },
+      include: { variants: true },
+    });
+
+    const allProductsCollection = {
+      id: "all-products",
+      name: "All Products",
+      slug: "all-products",
+      products: allProducts,
+      imageUrl:
+        allProducts.length > 0
+          ? `${env.NEXT_PUBLIC_STORAGE_URL}/products/${allProducts[Math.floor(Math.random() * allProducts.length)]?.featuredImage}`
+          : "all-products.jpg",
+    };
+
+    return [...collections, allProductsCollection];
   }),
+
+  getBySlug: publicProcedure
+    .input(z.object({ slug: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const storeSlug = env.STORE_NAME.toLowerCase().replace(/ /g, "-");
+
+      if (input.slug === "all-products") {
+        const allProducts = await ctx.db.product.findMany({
+          where: {
+            store: { slug: storeSlug },
+            status: "ACTIVE",
+          },
+          include: { variants: true },
+        });
+
+        const allProductsCollection = {
+          id: "all-products",
+          name: "All Products",
+          slug: "all-products",
+          products: allProducts,
+          imageUrl:
+            allProducts.length > 0
+              ? `${env.NEXT_PUBLIC_STORAGE_URL}/products/${allProducts[Math.floor(Math.random() * allProducts.length)]?.featuredImage}`
+              : "all-products.jpg",
+        };
+
+        return allProductsCollection;
+      }
+
+      if (input.slug === "sale-products") {
+        const products = await ctx.db.product.findMany({
+          where: {
+            status: "ACTIVE",
+            variants: { some: { compareAtPriceInCents: { not: null } } },
+          },
+          include: { variants: true },
+        });
+
+        const allProductsCollection = {
+          id: "sale-products",
+          name: "Sale Products",
+          slug: "sale-products",
+          products: products,
+          imageUrl:
+            products.length > 0
+              ? `${env.NEXT_PUBLIC_STORAGE_URL}/products/${products[Math.floor(Math.random() * products.length)]?.featuredImage}`
+              : "all-products.jpg",
+        };
+        return allProductsCollection;
+      }
+
+      const collection = await ctx.db.collection.findUnique({
+        where: { slug: input.slug, store: { slug: storeSlug } },
+        include: {
+          products: {
+            where: { status: "ACTIVE" },
+            include: { variants: true },
+          },
+        },
+      });
+
+      return collection;
+    }),
 });

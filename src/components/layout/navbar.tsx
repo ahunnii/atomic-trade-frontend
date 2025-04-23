@@ -1,4 +1,6 @@
-import { Book, Menu, Sunset, Trees, Zap } from "lucide-react";
+"use server";
+
+import { Book, Menu, ShoppingCartIcon, Sunset, Trees, Zap } from "lucide-react";
 
 import {
   Accordion,
@@ -22,6 +24,13 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "~/components/ui/sheet";
+import { getCartId, getYeetId } from "~/server/actions/cart";
+import { auth as authClient } from "~/server/auth";
+import { api, HydrateClient } from "~/trpc/server";
+
+import { env } from "~/env";
+import { ShoppingCart } from "./shopping-cart";
+import { UserDropdown } from "./user-dropdown";
 
 interface MenuItem {
   title: string;
@@ -51,45 +60,25 @@ interface Navbar1Props {
   };
 }
 
-export const NavBar = ({
-  logo = {
+export async function NavBar() {
+  const collections = await api.collection.getAll();
+  const session = await authClient();
+
+  const logo = {
     url: "/",
     src: "/logo-at.png",
     alt: "logo",
     title: "Atomic Trade",
-  },
-  menu = [
+  };
+  const menu = [
     { title: "Home", url: "#" },
     {
-      title: "Products",
+      title: "Shop",
       url: "#",
-      items: [
-        {
-          title: "Blog",
-          description: "The latest industry news, updates, and info",
-          icon: <Book className="size-5 shrink-0" />,
-          url: "#",
-        },
-        {
-          title: "Company",
-          description: "Our mission is to innovate and empower the world",
-          icon: <Trees className="size-5 shrink-0" />,
-          url: "#",
-        },
-        {
-          title: "Careers",
-          description: "Browse job listing and discover our workspace",
-          icon: <Sunset className="size-5 shrink-0" />,
-          url: "#",
-        },
-        {
-          title: "Support",
-          description:
-            "Get in touch with our support team or visit our community forums",
-          icon: <Zap className="size-5 shrink-0" />,
-          url: "#",
-        },
-      ],
+      items: collections.map((collection) => ({
+        title: collection.name,
+        url: `/collections/${collection.slug}`,
+      })),
     },
     {
       title: "Resources",
@@ -122,97 +111,111 @@ export const NavBar = ({
       ],
     },
     {
-      title: "Pricing",
-      url: "#",
+      title: "Sale",
+      url: "/collections/sale-products",
     },
     {
       title: "Blog",
-      url: "#",
+      url: "/blogs",
     },
-  ],
-  auth = {
+  ];
+  const auth = {
     login: { title: "Login", url: "#" },
     signup: { title: "Sign up", url: "#" },
-  },
-}: Navbar1Props) => {
+  };
+
+  const cartId = await getCartId();
+
+  const cart = await api.cart.get(cartId ?? "");
+  const cartQuantity = cart?.cartItems.reduce(
+    (total, item) => total + item.quantity,
+    0,
+  );
+
   return (
-    <section className="py-4">
-      <div className="container mx-auto w-full">
-        {/* Desktop Menu */}
-        <nav className="mx-auto hidden w-full max-w-7xl items-center justify-between md:flex">
-          <div className="flex items-center gap-6">
-            {/* Logo */}
-            <a href={logo.url} className="flex items-center gap-2">
-              <img src={logo.src} className="max-h-16" alt={logo.alt} />
-              <span className="sr-only text-lg font-semibold tracking-tighter">
-                {logo.title}
-              </span>
-            </a>
-            <div className="flex items-center">
-              <NavigationMenu>
-                <NavigationMenuList>
-                  {menu.map((item) => renderMenuItem(item))}
-                </NavigationMenuList>
-              </NavigationMenu>
+    <HydrateClient>
+      <section className="py-4">
+        <div className="container mx-auto w-full">
+          {/* Desktop Menu */}
+          <nav className="mx-auto hidden w-full max-w-7xl items-center justify-between md:flex">
+            <div className="flex items-center gap-6">
+              {/* Logo */}
+              <a href={logo.url} className="flex items-center gap-2">
+                <img src={logo.src} className="max-h-16" alt={logo.alt} />
+                <span className="sr-only text-lg font-semibold tracking-tighter">
+                  {logo.title}
+                </span>
+              </a>
+              <div className="flex items-center">
+                <NavigationMenu>
+                  <NavigationMenuList>
+                    {menu.map((item) => renderMenuItem(item))}
+                  </NavigationMenuList>
+                </NavigationMenu>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <UserDropdown sessionData={session} />
+              <ShoppingCart
+                navCartId={cartId ?? ""}
+                cart={cart ?? undefined}
+                cartQuantity={cartQuantity ?? 0}
+              />
+            </div>
+          </nav>
+
+          {/* Mobile Menu */}
+          <div className="mx-auto block md:hidden">
+            <div className="flex items-center justify-between px-4">
+              {/* Logo */}
+              <a href={logo.url} className="flex items-center gap-2">
+                <img src={logo.src} className="max-h-16" alt={logo.alt} />
+              </a>
+              <Sheet>
+                <SheetTrigger asChild>
+                  <Button variant="outline" size="icon">
+                    <Menu className="size-4" />
+                  </Button>
+                </SheetTrigger>
+                <SheetContent className="overflow-y-auto">
+                  <SheetHeader>
+                    <SheetTitle>
+                      <a href={logo.url} className="flex items-center gap-2">
+                        <img
+                          src={logo.src}
+                          className="max-h-8"
+                          alt={logo.alt}
+                        />
+                      </a>
+                    </SheetTitle>
+                  </SheetHeader>
+                  <div className="flex flex-col gap-6 p-4">
+                    <Accordion
+                      type="single"
+                      collapsible
+                      className="flex w-full flex-col gap-4"
+                    >
+                      {menu.map((item) => renderMobileMenuItem(item))}
+                    </Accordion>
+
+                    <div className="flex flex-col gap-3">
+                      <Button asChild variant="outline">
+                        <a href={auth.login.url}>{auth.login.title}</a>
+                      </Button>
+                      <Button asChild>
+                        <a href={auth.signup.url}>{auth.signup.title}</a>
+                      </Button>
+                    </div>
+                  </div>
+                </SheetContent>
+              </Sheet>
             </div>
           </div>
-          <div className="flex gap-2">
-            <Button asChild variant="outline" size="sm">
-              <a href={auth.login.url}>{auth.login.title}</a>
-            </Button>
-            <Button asChild size="sm">
-              <a href={auth.signup.url}>{auth.signup.title}</a>
-            </Button>
-          </div>
-        </nav>
-
-        {/* Mobile Menu */}
-        <div className="mx-auto block md:hidden">
-          <div className="flex items-center justify-between px-4">
-            {/* Logo */}
-            <a href={logo.url} className="flex items-center gap-2">
-              <img src={logo.src} className="max-h-16" alt={logo.alt} />
-            </a>
-            <Sheet>
-              <SheetTrigger asChild>
-                <Button variant="outline" size="icon">
-                  <Menu className="size-4" />
-                </Button>
-              </SheetTrigger>
-              <SheetContent className="overflow-y-auto">
-                <SheetHeader>
-                  <SheetTitle>
-                    <a href={logo.url} className="flex items-center gap-2">
-                      <img src={logo.src} className="max-h-8" alt={logo.alt} />
-                    </a>
-                  </SheetTitle>
-                </SheetHeader>
-                <div className="flex flex-col gap-6 p-4">
-                  <Accordion
-                    type="single"
-                    collapsible
-                    className="flex w-full flex-col gap-4"
-                  >
-                    {menu.map((item) => renderMobileMenuItem(item))}
-                  </Accordion>
-
-                  <div className="flex flex-col gap-3">
-                    <Button asChild variant="outline">
-                      <a href={auth.login.url}>{auth.login.title}</a>
-                    </Button>
-                    <Button asChild>
-                      <a href={auth.signup.url}>{auth.signup.title}</a>
-                    </Button>
-                  </div>
-                </div>
-              </SheetContent>
-            </Sheet>
-          </div>
         </div>
-      </div>
-    </section>
+      </section>
+    </HydrateClient>
   );
-};
+}
 
 const renderMenuItem = (item: MenuItem) => {
   if (item.items) {

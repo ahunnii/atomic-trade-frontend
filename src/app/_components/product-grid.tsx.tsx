@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useState } from "react";
 import { env } from "~/env";
 import { api } from "~/trpc/react";
+import { ProductCard } from "./product-card";
 
 export function ProductGrid({
   products,
@@ -27,44 +28,37 @@ export function ProductGrid({
       <h2 className="mb-8 text-center text-2xl font-bold">BEST SELLERS</h2>
 
       <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
-        {products?.map((product) => (
-          <div key={product.id} className="flex flex-col">
-            <div className="relative mb-4 aspect-[3/4]">
-              <Image
-                src={`${env.NEXT_PUBLIC_STORAGE_URL}/products/${product.featuredImage}`}
-                alt={product.name}
-                fill
-                className="rounded-lg object-cover"
-              />
-            </div>
+        {products?.map((product) => {
+          const lowestPrice = Math.min(
+            ...product.variants.map((v) => v.priceInCents ?? 0),
+          );
+          const lowestCompareAtPrice = Math.min(
+            ...product.variants.map((v) => v.compareAtPriceInCents ?? 0),
+          );
 
-            <h3 className="text-lg font-medium">{product.name}</h3>
-            <p className="mb-4 text-gray-600">
-              $
-              {product?.variants?.[0]?.priceInCents
-                ? product.variants[0].priceInCents / 100
-                : 0}
-            </p>
+          // Check if there are different prices among variants
+          const hasSale = product.variants.some(
+            (v) =>
+              v.compareAtPriceInCents &&
+              v.compareAtPriceInCents > v.priceInCents,
+          );
 
-            <select
-              value={selectedSizes[product.id] ?? ""}
-              onChange={(e) => handleSizeChange(product.id, e.target.value)}
-              className="mb-4 rounded-md border bg-white p-2"
-              aria-label={`Select size for ${product.name}`}
-            >
-              <option value="">Select Size</option>
-              {product.variants.map((variant) => (
-                <option key={variant.id} value={variant.id}>
-                  {variant.name}
-                </option>
-              ))}
-            </select>
-
-            <button className="rounded-md bg-black px-6 py-3 text-white transition-colors hover:bg-gray-800">
-              Add to Cart
-            </button>
-          </div>
-        ))}
+          // Check if there are multiple different prices
+          const uniquePrices = new Set(
+            product.variants.map((v) => v.priceInCents),
+          );
+          const hasDifferentPrices = uniquePrices.size > 1;
+          return (
+            <ProductCard
+              key={product.id}
+              product={product}
+              lowestPrice={lowestPrice}
+              lowestCompareAtPrice={lowestCompareAtPrice}
+              hasSale={hasSale}
+              hasDifferentPrices={hasDifferentPrices}
+            />
+          );
+        })}
       </div>
     </div>
   );

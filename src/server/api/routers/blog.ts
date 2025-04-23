@@ -63,4 +63,16 @@ export const blogRouter = createTRPCRouter({
 
     return previews;
   }),
+
+  get: publicProcedure
+    .input(z.object({ slug: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const storeSlug = env.STORE_NAME.toLowerCase().replace(/ /g, "-");
+
+      const blogPost = await ctx.db.blogPost.findUnique({
+        where: { slug: input.slug, store: { slug: storeSlug } },
+      });
+
+      return blogPost;
+    }),
 });
