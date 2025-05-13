@@ -2,9 +2,10 @@
 import type { Product, Variation } from "@prisma/client";
 import { X } from "lucide-react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
+import { LoadButton } from "~/components/common/load-button";
 import { QuantityNumberInput } from "~/components/inputs/quantity-number-input";
-import { LoadButton } from "~/components/shared/load-button";
 import { env } from "~/env";
 
 import { api } from "~/trpc/react";
@@ -27,16 +28,19 @@ type Props = {
 
 export function CartClient({ cart }: Props) {
   const utils = api.useUtils();
+  const router = useRouter();
 
   const adjustQuantity = api.cart.adjustQuantity.useMutation({
     onSettled: () => {
       void utils.cart.invalidate();
+      router.refresh();
     },
   });
 
   const deleteItem = api.cart.deleteItem.useMutation({
     onSettled: () => {
       void utils.cart.invalidate();
+      router.refresh();
     },
   });
 

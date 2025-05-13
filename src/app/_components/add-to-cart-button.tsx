@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useTransition } from "react";
-import { LoadButton } from "~/components/shared/load-button";
+import { LoadButton } from "~/components/common/load-button";
 import { Button } from "~/components/ui/button";
 import {
   getCartId,

@@ -15,9 +15,10 @@ import {
 import { env } from "~/env";
 import { api } from "~/trpc/react";
 import { formatCurrency } from "~/utils/format-currency";
+import { LoadButton } from "../common/load-button";
 import { QuantityNumberInput } from "../inputs/quantity-number-input";
-import { LoadButton } from "../shared/load-button";
 
+import { useRouter } from "next/navigation";
 type CartItem = {
   id: string;
   variantId: string;
@@ -84,6 +85,8 @@ export function ShoppingCart({
 
   // Use currentCartQuantity if it's been updated, otherwise use the initial cartQuantity
   const displayQuantity = currentCart ? currentCartQuantity : cartQuantity;
+
+  const router = useRouter();
 
   return (
     <Sheet>
@@ -238,7 +241,7 @@ export function ShoppingCart({
               <Button
                 className="w-full"
                 onClick={() => {
-                  // TODO: Implement checkout functionality
+                  void router.push("/checkout");
                 }}
               >
                 Checkout

@@ -240,7 +240,15 @@ export const cartRouter = createTRPCRouter({
 
       const cart = await ctx.db.cart.findUnique({
         where: { id: cartId },
-        include: { cartItems: true },
+        select: {
+          cartItems: {
+            select: {
+              id: true,
+              variantId: true,
+              quantity: true,
+            },
+          },
+        },
       });
 
       if (!cart) {

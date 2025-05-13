@@ -1,12 +1,12 @@
-"use client";
 import type { Product, Variation } from "@prisma/client";
 import { ShoppingCart } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
 import { Button } from "~/components/ui/button";
-import { api } from "~/trpc/react";
+import { api, HydrateClient } from "~/trpc/server";
 import { formatCurrency } from "~/utils/format-currency";
+import { CheckoutSessionButton } from "./checkout-session-button";
 
 type CartItem = {
   id: string;
@@ -22,17 +22,18 @@ type Cart = {
 
 type Props = {
   cart: Cart;
+  isUpdating?: boolean;
 };
 
-export function CartSummaryClient({ cart }: Props) {
-  const currentCart = api.cart.get.useQuery(cart.id);
-  const store = api.store.get.useQuery();
-  const subtotal = currentCart?.data?.cartItems.reduce(
+export async function CartSummaryClient({ cart }: Props) {
+  const currentCart = await api.cart.get(cart.id);
+  const store = await api.store.get();
+  const subtotal = currentCart?.cartItems.reduce(
     (total, item) => total + (item.variant.priceInCents ?? 0) * item.quantity,
     0,
   );
 
-  if (!currentCart || currentCart.data?.cartItems.length === 0) {
+  if (!currentCart || currentCart?.cartItems.length === 0) {
     return null;
   }
 
@@ -55,28 +56,27 @@ export function CartSummaryClient({ cart }: Props) {
             <span className="text-muted-foreground">Shipping</span>
             <span>
               {formatCurrency(
-                store?.data?.hasFlatRate
-                  ? (store?.data?.flatRateAmount ?? 0)
-                  : (store?.data?.minFreeShipping ?? 0),
+                store?.hasFlatRate
+                  ? (store?.flatRateAmount ?? 0)
+                  : (store?.minFreeShipping ?? 0),
               )}
             </span>
           </div>
           <div className="mt-2 flex justify-between border-t pt-2">
             <span className="font-bold">Total</span>
             <span className="font-bold">
-              {formatCurrency(
-                (subtotal ?? 0) + (store?.data?.flatRateAmount ?? 0),
-              )}
+              {formatCurrency((subtotal ?? 0) + (store?.flatRateAmount ?? 0))}
             </span>
           </div>
         </div>
 
-        <Button asChild className="mt-4 w-full">
+        {/* <Button asChild className="mt-4 w-full">
           <Link href="/checkout">
             <ShoppingCart className="mr-2 h-4 w-4" />
             Proceed to Checkout
           </Link>
-        </Button>
+        </Button> */}
+        <CheckoutSessionButton cartId={cart.id} />
       </div>
     </div>
   );
