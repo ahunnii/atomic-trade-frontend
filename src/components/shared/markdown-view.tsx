@@ -1,36 +1,17 @@
-/* eslint-disable @typescript-eslint/no-misused-promises */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
+
 "use client";
 
-import { usePathname, useRouter } from "next/navigation";
-import {
-  forwardRef,
-  useCallback,
-  useEffect,
-  useImperativeHandle,
-  useRef,
-  useState,
-} from "react";
-import type {
-  FieldValues,
-  Path,
-  PathValue,
-  UseFormReturn,
-} from "react-hook-form";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import type EditorJS from "@editorjs/editorjs";
 
 import "~/styles/editor.css";
 
-import type { OutputBlockData, OutputData } from "@editorjs/editorjs";
-
-import { env } from "~/env";
+import type { OutputData } from "@editorjs/editorjs";
 
 import { cn } from "~/lib/utils";
-import { api } from "~/trpc/react";
-
-import { Label } from "../ui/label";
 
 export interface LargeMarkdownFormFieldRef {
   clear: () => void;
@@ -38,10 +19,10 @@ export interface LargeMarkdownFormFieldRef {
   save: () => Promise<void>;
 }
 
-interface Props {
+type Props = {
   className?: string;
   defaultContent?: OutputData;
-}
+};
 
 export const MarkdownView = (props: Props) => {
   const { className } = props;
@@ -80,9 +61,7 @@ export const MarkdownView = (props: Props) => {
             },
           },
 
-          image: {
-            class: ImageTool,
-          },
+          image: { class: ImageTool },
           list: List,
           code: Code,
           inlineCode: InlineCode,
@@ -124,8 +103,8 @@ export const MarkdownView = (props: Props) => {
   }
 
   return (
-    <div className={cn("col-span-full", className)}>
-      <div className="prose prose-stone dark:prose-invert bg-background col-span-full mt-2 w-full rounded-lg">
+    <div className={cn("col-span-full w-full", className)}>
+      <div className="prose prose-stone dark:prose-invert bg-background col-span-full mt-2 w-full max-w-7xl rounded-lg">
         <div id="editor" className="h-auto w-full" />
       </div>
     </div>

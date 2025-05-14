@@ -158,3 +158,9 @@
 .dark .cdx-notify__cross::before {
   background: #1a1a1a;
 }
+
+.ce-block__content,
+.ce-toolbar__content {
+  max-width: unset;
+  width: 100%;
+}

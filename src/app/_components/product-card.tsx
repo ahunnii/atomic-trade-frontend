@@ -1,5 +1,6 @@
 import type { Product, Variation } from "@prisma/client";
 import Image from "next/image";
+import Link from "next/link";
 import { useState } from "react";
 import { env } from "~/env";
 import { getCartId } from "~/server/actions/cart";
@@ -44,21 +45,25 @@ export function ProductCard({
 
   return (
     <div className="flex flex-col">
-      <div className="relative mb-4 flex aspect-square items-center justify-center">
-        <Image
-          src={`${env.NEXT_PUBLIC_STORAGE_URL}/products/${product.featuredImage}`}
-          alt={product.name}
-          fill
-          className="rounded-lg object-cover object-center"
-        />
-        {hasSale && (
-          <div className="absolute top-2 left-2 rounded bg-red-600 px-2 py-1 text-xs font-bold text-white">
-            SALE
-          </div>
-        )}
-      </div>
+      <Link href={`/collections/all-products/products/${product.slug}`}>
+        <div className="relative mb-4 flex aspect-square items-center justify-center">
+          <Image
+            src={`${env.NEXT_PUBLIC_STORAGE_URL}/products/${product.featuredImage}`}
+            alt={product.name}
+            fill
+            className="rounded-lg object-cover object-center"
+          />
+          {hasSale && (
+            <div className="absolute top-2 left-2 rounded bg-red-600 px-2 py-1 text-xs font-bold text-white">
+              SALE
+            </div>
+          )}
+        </div>
+      </Link>
 
-      <h3 className="text-lg font-medium">{product.name}</h3>
+      <Link href={`/collections/all-products/products/${product.slug}`}>
+        <h3 className="text-lg font-medium">{product.name}</h3>{" "}
+      </Link>
       <div className="mb-4">
         {selectedVariant ? (
           selectedVariant.compareAtPriceInCents ? (

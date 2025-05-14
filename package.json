@@ -24,6 +24,7 @@
     "schema": "./prisma/schema"
   },
   "dependencies": {
+    "@alkhipce/editorjs-react": "^0.1.4",
     "@auth/prisma-adapter": "^2.7.2",
     "@aws-sdk/client-s3": "^3.796.0",
     "@dreamwalker-studios/toasts": "^0.1.4",
@@ -77,6 +78,8 @@
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
     "date-fns": "^4.1.0",
+    "editor-react-parser": "^1.0.7",
+    "editorjs-html": "^4.0.5",
     "embla-carousel-react": "^8.6.0",
     "lucide-react": "^0.503.0",
     "minio": "^8.0.5",
