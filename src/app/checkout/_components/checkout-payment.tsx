@@ -11,6 +11,7 @@ import {
 } from "@stripe/react-stripe-js";
 import { useEffect, useState } from "react";
 import { Button } from "~/components/ui/button";
+import { env } from "~/env";
 import { api } from "~/trpc/react";
 import { formatCurrency } from "~/utils/format-currency";
 import { BillingAddress } from "./billing-address";
@@ -75,7 +76,7 @@ export function CheckoutPayment({ subtotalInCents, email }: Props) {
       elements,
       clientSecret,
       confirmParams: {
-        return_url: `http://www.localhost:3000/payment-success?amount=${subtotalInCents}`,
+        return_url: `${env.NEXT_PUBLIC_HOSTNAME}/payment-success?amount=${subtotalInCents}`,
       },
     });
 
