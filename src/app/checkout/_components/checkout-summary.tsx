@@ -78,67 +78,22 @@ export type DiscountedCartData = {
     amountInCents: number;
   } | null;
   totalDiscountInCents: number;
+  bestAutomaticDiscount: {
+    id: string;
+    code: string;
+    type: string;
+    amountInCents: number;
+  } | null;
+  couponDiscount: {
+    id: string;
+    code: string;
+    type: string;
+    amountInCents: number;
+  } | null;
 };
 
 type Props = {
-  discountedCartData: {
-    originalSubtotal: number;
-    originalCartItems: CartItem[];
-    updatedCartItems: CartItem[];
-    discountedShipping: number;
-    orderDiscountInCents: number;
-    productDiscountInCents: number;
-    totalAfterDiscounts: number;
-    appliedDiscounts: {
-      id: string;
-      code: string;
-      type: string;
-    }[];
-    itemDiscountMap: Record<
-      string,
-      { id: string; code: string; type: string }[]
-    >;
-    updatedCartItemsWithDiscounts: (CartItem & {
-      appliedDiscounts: {
-        id: string;
-        code: string;
-        type: string;
-      }[];
-    })[];
-    productDiscountsMap: Record<
-      string,
-      {
-        variantId: string;
-        name: string;
-        variantName: string;
-      }[]
-    >;
-    orderDiscounts: {
-      id: string;
-      code: string;
-      type: string;
-      amountInCents: number;
-    }[];
-    shippingDiscount: {
-      id: string;
-      code: string;
-      type: string;
-      amountInCents: number;
-    } | null;
-    totalDiscountInCents: number;
-    bestAutomaticDiscount: {
-      id: string;
-      code: string;
-      type: string;
-      amountInCents: number;
-    } | null;
-    couponDiscount: {
-      id: string;
-      code: string;
-      type: string;
-      amountInCents: number;
-    } | null;
-  };
+  discountedCartData: DiscountedCartData;
 };
 
 export function CheckoutSummary({ discountedCartData }: Props) {

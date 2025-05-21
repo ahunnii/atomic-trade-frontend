@@ -10,13 +10,12 @@ import { VariantSelection } from "../_components/variant-selection";
 
 type ProductImage = string;
 
-export default async function ProductPage({
-  params,
-}: {
-  params: { productSlug: string };
-}) {
+type Props = { params: Promise<{ productSlug: string }> };
+
+export default async function ProductPage({ params }: Props) {
+  const { productSlug } = await params;
   const product = await api.product.getBySlug({
-    slug: params.productSlug,
+    slug: productSlug,
   });
 
   if (!product) {

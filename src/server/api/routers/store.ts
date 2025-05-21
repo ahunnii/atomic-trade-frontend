@@ -299,7 +299,11 @@ export const storeRouter = createTRPCRouter({
         couponDiscount: couponDiscount ?? undefined,
       });
 
-      return data;
+      return {
+        ...data,
+        bestAutomaticDiscount: null,
+        couponDiscount: null,
+      };
     }),
 
   checkout: publicProcedure

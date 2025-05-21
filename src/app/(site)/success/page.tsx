@@ -5,18 +5,16 @@ import { stripeClient } from "~/lib/payments/clients/stripe";
 import { clearCartId, getCartId } from "~/server/actions/cart";
 import { api } from "~/trpc/server";
 
-export default async function SuccessPage({
-  searchParams,
-}: {
-  searchParams: { session_id?: string };
-}) {
-  const sessionId = searchParams.session_id;
+type Props = { searchParams: Promise<{ session_id?: string }> };
+
+export default async function SuccessPage({ searchParams }: Props) {
+  const { session_id } = await searchParams;
   let isSuccess = false;
   let errorMessage = "";
 
-  if (sessionId) {
+  if (session_id) {
     try {
-      const session = await stripeClient.checkout.sessions.retrieve(sessionId);
+      const session = await stripeClient.checkout.sessions.retrieve(session_id);
       isSuccess = session.payment_status === "paid";
 
       if (isSuccess) {

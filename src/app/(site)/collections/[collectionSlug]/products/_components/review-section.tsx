@@ -93,13 +93,13 @@ const ReviewSection = ({
                 <div
                   className="h-full bg-yellow-400"
                   style={{
-                    width: `${calculatePercentage(ratingDistribution[rating] || 0)}%`,
+                    width: `${calculatePercentage(ratingDistribution[rating] ?? 0)}%`,
                   }}
                 />
               </div>
             </div>
             <div className="w-16 text-right text-gray-600">
-              ({ratingDistribution[rating] || 0})
+              ({ratingDistribution[rating] ?? 0})
             </div>
           </div>
         ))}
