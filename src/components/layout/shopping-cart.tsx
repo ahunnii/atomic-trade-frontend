@@ -241,10 +241,10 @@ export function ShoppingCart({
               <Button
                 className="w-full"
                 onClick={() => {
-                  void router.push("/checkout");
+                  void router.push("/cart");
                 }}
               >
-                Checkout
+                Go to cart
               </Button>
             </div>
           </div>

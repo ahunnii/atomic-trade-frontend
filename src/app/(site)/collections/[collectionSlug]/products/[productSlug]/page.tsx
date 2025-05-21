@@ -1,19 +1,14 @@
 import type { OutputData } from "@editorjs/editorjs";
-import { Minus, Plus, Star } from "lucide-react";
+import { Star } from "lucide-react";
 import { MarkdownView } from "~/components/shared/markdown-view";
 import { Separator } from "~/components/ui/separator";
 import { env } from "~/env";
 import { api } from "~/trpc/server";
 
-import { formatCurrency } from "~/utils/format-currency";
 import ReviewSection from "../_components/review-section";
+import { VariantSelection } from "../_components/variant-selection";
 
 type ProductImage = string;
-type ProductAttribute = {
-  id: string;
-  name: string;
-  values: string[];
-};
 
 export default async function ProductPage({
   params,
@@ -28,7 +23,6 @@ export default async function ProductPage({
     return <div>Product not found</div>;
   }
 
-  console.log(product);
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
       <div className="lg:grid lg:grid-cols-2 lg:gap-x-8">
@@ -73,7 +67,7 @@ export default async function ProductPage({
           </h1>
 
           {/* Reviews */}
-          <div className="mt-3">
+          {/* <div className="mt-3">
             <div className="flex items-center">
               <div className="flex items-center">
                 {[0, 1, 2, 3, 4].map((rating) => (
@@ -89,70 +83,13 @@ export default async function ProductPage({
                 {product.reviews.length} reviews
               </p>
             </div>
-          </div>
+          </div> */}
 
-          {/* Price */}
-          <div className="mt-6">
-            <h2 className="sr-only">Product information</h2>
-            <p className="text-3xl tracking-tight text-gray-900">
-              {formatCurrency(product.variants[0]?.priceInCents ?? 0)}
-            </p>
-          </div>
-
-          {/* Variants */}
-          {product?.attributes?.map((attribute: ProductAttribute) => (
-            <div key={attribute.id} className="mt-8">
-              <h3 className="text-sm font-medium text-gray-900">
-                {attribute.name}
-              </h3>
-              <div className="mt-2">
-                <div className="grid grid-cols-4 gap-2">
-                  {attribute.values.map((value: string) => (
-                    <button
-                      key={value}
-                      className="flex items-center justify-center rounded-md border border-gray-200 px-3 py-2 text-sm font-medium hover:border-gray-300"
-                    >
-                      {value}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-          ))}
-
-          {/* Quantity Selector */}
-          <div className="mt-8">
-            <h3 className="text-sm font-medium text-gray-900">Quantity</h3>
-            <div className="mt-2 flex items-center rounded-md border border-gray-200">
-              <button
-                className="p-2 hover:bg-gray-50"
-                aria-label="Decrease quantity"
-              >
-                <Minus className="h-4 w-4" />
-              </button>
-              <input
-                type="number"
-                min="1"
-                defaultValue="1"
-                className="w-16 border-0 text-center focus:ring-0"
-                aria-label="Product quantity"
-                title="Product quantity"
-              />
-              <button
-                className="p-2 hover:bg-gray-50"
-                aria-label="Increase quantity"
-              >
-                <Plus className="h-4 w-4" />
-              </button>
-            </div>
-          </div>
-
-          {/* Add to Cart Button */}
-          <div className="mt-8">
-            <button className="w-full rounded-md bg-black px-8 py-3 text-white hover:bg-gray-800 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:outline-none">
-              Add to Cart
-            </button>
-          </div>
+          {/* Variant Selection */}
+          <VariantSelection
+            attributes={product.attributes}
+            variants={product.variants}
+          />
 
           {/* Product Description */}
           <div className="mt-8">
@@ -176,7 +113,7 @@ export default async function ProductPage({
           )}
         </div>
 
-        <ReviewSection
+        {/* <ReviewSection
           overallRating={
             product.reviews?.length > 0
               ? product.reviews.reduce(
@@ -188,13 +125,13 @@ export default async function ProductPage({
           totalReviews={product.reviews.length ?? 0}
           ratingDistribution={product.reviews.reduce(
             (acc, review) => {
-              acc[review.rating] = (acc[review.rating] || 0) + 1;
+              acc[review.rating] = (acc[review.rating] ?? 0) + 1;
               return acc;
             },
             {} as Record<number, number>,
           )}
           reviews={[]}
-        />
+        /> */}
       </div>
     </div>
   );

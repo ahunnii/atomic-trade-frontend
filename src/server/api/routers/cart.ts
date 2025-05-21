@@ -330,4 +330,17 @@ export const cartRouter = createTRPCRouter({
         message: "Cart item removed successfully",
       };
     }),
+
+  delete: publicProcedure
+    .input(z.string())
+    .mutation(async ({ ctx, input: cartId }) => {
+      await ctx.db.cart.delete({
+        where: { id: cartId },
+      });
+
+      return {
+        data: null,
+        message: "Cart deleted successfully",
+      };
+    }),
 });
