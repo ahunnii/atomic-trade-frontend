@@ -19,6 +19,16 @@ type Block = {
 };
 
 export const cartRouter = createTRPCRouter({
+  getItems: publicProcedure.input(z.string()).query(async ({ ctx, input }) => {
+    const cart = await ctx.db.cart.findUnique({
+      where: { id: input },
+      include: { cartItems: true },
+    });
+
+    const totalItems =
+      cart?.cartItems.reduce((sum, item) => sum + item.quantity, 0) ?? 0;
+    return totalItems;
+  }),
   get: publicProcedure.input(z.string()).query(async ({ ctx, input }) => {
     const storeSlug = env.STORE_NAME.toLowerCase().replace(/ /g, "-");
 
@@ -161,6 +171,81 @@ export const cartRouter = createTRPCRouter({
         where: { slug: storeSlug },
       });
 
+      const { cartId, variantId, quantity } = input;
+
+      const cart = await ctx.db.cart.findUnique({
+        where: { id: cartId },
+        include: { cartItems: true },
+      });
+
+      if (!cart) {
+        return {
+          data: null,
+          message: "Cart not found",
+        };
+      }
+
+      const cartItem = cart.cartItems.find(
+        (item) => item.variantId === variantId,
+      );
+
+      if (cartItem) {
+        if (quantity === 0) {
+          // Remove cart item if quantity is 0
+          await ctx.db.cartItem.delete({
+            where: { id: cartItem.id },
+          });
+
+          return {
+            data: null,
+            message: "Cart item removed successfully",
+          };
+        } else {
+          // Update existing cart item
+          const updatedItem = await ctx.db.cartItem.update({
+            where: { id: cartItem.id },
+            data: { quantity: cartItem.quantity + quantity },
+          });
+
+          return {
+            data: updatedItem,
+            message: "Cart item updated successfully",
+          };
+        }
+      } else {
+        // Don't create new item if quantity is 0
+        if (quantity === 0) {
+          return {
+            data: null,
+            message: "No cart item to remove",
+          };
+        }
+
+        // Create new cart item
+        const newItem = await ctx.db.cartItem.create({
+          data: {
+            cartId: cart.id,
+            variantId,
+            quantity,
+          },
+        });
+
+        return {
+          data: newItem,
+          message: "Cart item created successfully",
+        };
+      }
+    }),
+
+  addItem: publicProcedure
+    .input(
+      z.object({
+        cartId: z.string(),
+        variantId: z.string(),
+        quantity: z.number(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
       const { cartId, variantId, quantity } = input;
 
       const cart = await ctx.db.cart.findUnique({

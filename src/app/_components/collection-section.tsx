@@ -3,19 +3,11 @@ import Image from "next/image";
 import Link from "next/link";
 import { env } from "~/env";
 
-interface CollectionItem {
-  id: string;
-  title: string;
-  imageUrl: string;
-  actionText: string;
-  href: string;
-}
-
-interface CollectionSectionProps {
+type Props = {
   items: Collection[];
-}
+};
 
-export default function CollectionSection({ items }: CollectionSectionProps) {
+export default function CollectionSection({ items }: Props) {
   if (!items.length || items.length > 5) {
     return null;
   }

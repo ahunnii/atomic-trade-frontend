@@ -8,7 +8,7 @@ import { TRPCReactProvider } from "~/trpc/react";
 
 export const metadata: Metadata = {
   title: {
-    template: `%s - ${process.env.STORE_NAME ?? "Store"}`,
+    template: `%s | ${process.env.STORE_NAME ?? "Store"}`,
     default: process.env.STORE_NAME ?? "Store",
   },
   description: "A platform for the future of e-commerce",

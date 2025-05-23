@@ -1,7 +1,7 @@
 import type { JsonObject } from "@prisma/client/runtime/library";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { contactUsSchema } from "~/app/(site)/contact-us/_validators/schema";
+import { contactUsSchema } from "~/app/(site)/store/contact-us/_validators/schema";
 import { env } from "~/env";
 import { calculateCartDiscounts } from "~/lib/discounts/calculate-cart-discounts";
 import { emailService } from "~/lib/email";
@@ -28,6 +28,27 @@ type Block = {
 };
 
 export const storeRouter = createTRPCRouter({
+  getBrand: publicProcedure.query(async ({ ctx }) => {
+    const storeSlug = env.STORE_NAME.toLowerCase().replace(/ /g, "-");
+
+    const store = await ctx.db.store.findUnique({
+      where: { slug: storeSlug },
+      select: { logo: true, name: true },
+    });
+
+    return store;
+  }),
+
+  getHomePageSettings: publicProcedure.query(async ({ ctx }) => {
+    const storeSlug = env.STORE_NAME.toLowerCase().replace(/ /g, "-");
+
+    const store = await ctx.db.store.findUnique({
+      where: { slug: storeSlug },
+      select: { homePageSettings: true },
+    });
+
+    return store?.homePageSettings;
+  }),
   get: publicProcedure.query(async ({ ctx }) => {
     const storeSlug = env.STORE_NAME.toLowerCase().replace(/ /g, "-");
 

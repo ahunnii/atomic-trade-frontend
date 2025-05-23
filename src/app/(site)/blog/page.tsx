@@ -4,7 +4,6 @@ import { api } from "~/trpc/server";
 
 export const metadata = {
   title: "Blogs",
-  description: "Blogs",
 };
 
 export default async function BlogsPage() {

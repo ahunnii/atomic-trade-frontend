@@ -1,6 +1,6 @@
 "use server";
 
-import { Book, Menu, ShoppingCartIcon, Sunset, Trees, Zap } from "lucide-react";
+import { Book, Menu, Sunset, Trees, Zap } from "lucide-react";
 
 import {
   Accordion,
@@ -24,10 +24,11 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "~/components/ui/sheet";
-import { getCartId, getYeetId } from "~/server/actions/cart";
+import { getCartId } from "~/server/actions/cart";
 import { auth as authClient } from "~/server/auth";
 import { api, HydrateClient } from "~/trpc/server";
 
+import Image from "next/image";
 import { env } from "~/env";
 import { ShoppingCart } from "./shopping-cart";
 import { UserDropdown } from "./user-dropdown";
@@ -40,38 +41,22 @@ interface MenuItem {
   items?: MenuItem[];
 }
 
-interface Navbar1Props {
-  logo?: {
-    url: string;
-    src: string;
-    alt: string;
-    title: string;
-  };
-  menu?: MenuItem[];
-  auth?: {
-    login: {
-      title: string;
-      url: string;
-    };
-    signup: {
-      title: string;
-      url: string;
-    };
-  };
-}
-
 export async function NavBar() {
+  const cartId = await getCartId();
   const collections = await api.collection.getAll();
+  const storeBrand = await api.store.getBrand();
+  const cartItems = await api.cart.getItems(cartId ?? "");
   const session = await authClient();
 
   const logo = {
     url: "/",
-    src: "/logo-at.png",
+    src: storeBrand?.logo
+      ? `${env.NEXT_PUBLIC_STORAGE_URL}/misc/${storeBrand.logo}`
+      : "/logo-atomic-trade.png",
     alt: "logo",
-    title: "Atomic Trade",
+    title: storeBrand?.name ?? "Atomic Trade",
   };
   const menu = [
-    { title: "Home", url: "#" },
     {
       title: "Shop",
       url: "#",
@@ -81,56 +66,57 @@ export async function NavBar() {
       })),
     },
     {
-      title: "Resources",
-      url: "#",
-      items: [
-        {
-          title: "Help Center",
-          description: "Get all the answers you need right here",
-          icon: <Zap className="size-5 shrink-0" />,
-          url: "#",
-        },
-        {
-          title: "Contact Us",
-          description: "We are here to help you with any questions you have",
-          icon: <Sunset className="size-5 shrink-0" />,
-          url: "#",
-        },
-        {
-          title: "Status",
-          description: "Check the current status of our services and APIs",
-          icon: <Trees className="size-5 shrink-0" />,
-          url: "#",
-        },
-        {
-          title: "Terms of Service",
-          description: "Our terms and conditions for using our services",
-          icon: <Book className="size-5 shrink-0" />,
-          url: "#",
-        },
-      ],
+      title: "Featured",
+      url: "/collections/featured-products",
     },
+    {
+      title: "New Arrivals",
+      url: "/collections/new-arrivals",
+    },
+
+    // {
+    //   title: "The Shop",
+    //   url: "#",
+    //   items: [
+    //     {
+    //       title: "Help Center",
+    //       description: "Get all the answers you need right here",
+    //       icon: <Zap className="size-5 shrink-0" />,
+    //       url: "#",
+    //     },
+    //     {
+    //       title: "Contact Us",
+    //       description: "We are here to help you with any questions you have",
+    //       icon: <Sunset className="size-5 shrink-0" />,
+    //       url: "#",
+    //     },
+    //     {
+    //       title: "Status",
+    //       description: "Check the current status of our services and APIs",
+    //       icon: <Trees className="size-5 shrink-0" />,
+    //       url: "#",
+    //     },
+    //     {
+    //       title: "Terms of Service",
+    //       description: "Our terms and conditions for using our services",
+    //       icon: <Book className="size-5 shrink-0" />,
+    //       url: "#",
+    //     },
+    //   ],
+    // },
     {
       title: "Sale",
       url: "/collections/sale-products",
     },
     {
       title: "Blog",
-      url: "/blogs",
+      url: "/blog",
     },
   ];
   const auth = {
     login: { title: "Login", url: "#" },
     signup: { title: "Sign up", url: "#" },
   };
-
-  const cartId = await getCartId();
-
-  const cart = await api.cart.get(cartId ?? "");
-  const cartQuantity = cart?.cartItems.reduce(
-    (total, item) => total + item.quantity,
-    0,
-  );
 
   return (
     <HydrateClient>
@@ -141,7 +127,15 @@ export async function NavBar() {
             <div className="flex items-center gap-6">
               {/* Logo */}
               <a href={logo.url} className="flex items-center gap-2">
-                <img src={logo.src} className="max-h-16" alt={logo.alt} />
+                <div className="relative h-16 w-16">
+                  <Image
+                    src={logo.src}
+                    fill
+                    alt={logo.alt}
+                    className="object-contain"
+                    priority
+                  />
+                </div>
                 <span className="sr-only text-lg font-semibold tracking-tighter">
                   {logo.title}
                 </span>
@@ -156,11 +150,7 @@ export async function NavBar() {
             </div>
             <div className="flex items-center gap-2">
               <UserDropdown sessionData={session} />
-              <ShoppingCart
-                navCartId={cartId ?? ""}
-                cart={cart ?? undefined}
-                cartQuantity={cartQuantity ?? 0}
-              />
+              <ShoppingCart navCartId={cartId} cartQuantity={cartItems ?? 0} />
             </div>
           </nav>
 
@@ -169,7 +159,18 @@ export async function NavBar() {
             <div className="flex items-center justify-between px-4">
               {/* Logo */}
               <a href={logo.url} className="flex items-center gap-2">
-                <img src={logo.src} className="max-h-16" alt={logo.alt} />
+                <div className="relative h-16 w-16">
+                  <Image
+                    src={logo.src}
+                    fill
+                    alt={logo.alt}
+                    className="object-contain"
+                    priority
+                  />{" "}
+                  <span className="sr-only text-lg font-semibold tracking-tighter">
+                    {logo.title}
+                  </span>
+                </div>
               </a>
               <Sheet>
                 <SheetTrigger asChild>
@@ -181,11 +182,18 @@ export async function NavBar() {
                   <SheetHeader>
                     <SheetTitle>
                       <a href={logo.url} className="flex items-center gap-2">
-                        <img
-                          src={logo.src}
-                          className="max-h-8"
-                          alt={logo.alt}
-                        />
+                        <div className="relative h-8 w-8">
+                          <Image
+                            src={logo.src}
+                            fill
+                            alt={logo.alt}
+                            className="object-contain"
+                            priority
+                          />
+                        </div>{" "}
+                        <span className="sr-only text-lg font-semibold tracking-tighter">
+                          {logo.title}
+                        </span>
                       </a>
                     </SheetTitle>
                   </SheetHeader>

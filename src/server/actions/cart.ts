@@ -1,10 +1,45 @@
 "use server";
 
 import { cookies } from "next/headers";
+import { api } from "~/trpc/server";
 
 export async function getCartId() {
   const cookieStore = await cookies();
   return cookieStore.get("cartId")?.value;
+}
+
+export async function getCart() {
+  const cartId = await getCartId();
+  if (!cartId) {
+    return null;
+  }
+  return await api.cart.get(cartId);
+}
+
+export async function createCart() {
+  const cart = await api.cart.create();
+  const cartId = await setCartId(cart.data.id);
+  return cart.data;
+}
+
+export async function addToCart({
+  variantId,
+  quantity,
+}: {
+  variantId: string;
+  quantity: number;
+}) {
+  const cartId = await getCartId();
+  if (!cartId) {
+    return null;
+  }
+  const updateCart = await api.cart.update({
+    cartId: cartId ?? "",
+    variantId: variantId,
+    quantity: quantity,
+  });
+
+  return updateCart.data;
 }
 
 export async function getYeetId() {

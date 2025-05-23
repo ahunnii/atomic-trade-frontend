@@ -105,7 +105,7 @@ export const MarkdownView = (props: Props) => {
   return (
     <div className={cn("col-span-full w-full", className)}>
       <div className="prose prose-stone dark:prose-invert bg-background col-span-full mt-2 w-full max-w-7xl rounded-lg">
-        <div id="editor" className="h-auto w-full" />
+        <div id="editor" className="min-h-[500px] w-full py-4" />
       </div>
     </div>
   );

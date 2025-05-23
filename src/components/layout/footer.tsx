@@ -1,94 +1,107 @@
-"use client";
-import { Facebook, Instagram, Mail, Twitter } from "lucide-react";
+import { Facebook, Instagram, Twitter } from "lucide-react";
 import Link from "next/link";
 import React from "react";
-// import { FaFacebook, FaInstagram, FaTwitter } from "react-icons/fa";
-
-const Footer: React.FC = () => {
-  const [email, setEmail] = React.useState("");
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // TODO: Implement newsletter subscription logic
-    setEmail("");
-  };
-
+import { api } from "~/trpc/server";
+import { NewsletterForm } from "./newsletter-form";
+const Footer: React.FC = async () => {
+  const storeBrand = await api.store.getBrand();
+  const reservedPages = await api.reservedPage.getAll();
+  const year = new Date().getFullYear();
   return (
     <footer className="border-t border-gray-400/25 px-4 py-12">
-      <div className="mx-auto grid max-w-7xl grid-cols-1 gap-8 md:grid-cols-4">
+      <div className="mx-auto grid max-w-7xl grid-cols-1 gap-8 md:grid-cols-6">
         {/* Get Help Section */}
-        <div>
-          <h3 className="mb-4 text-lg font-bold">GET HELP</h3>
+        <div className="col-span-1">
+          <h3 className="mb-4 text-lg font-bold">SUPPORT</h3>
           <ul className="space-y-2">
+            {reservedPages?.enableContactPage && (
+              <li>
+                <Link
+                  href="/store/contact-us"
+                  className="after:bg-primary relative font-light after:absolute after:bottom-0 after:left-0 after:h-[1.5px] after:w-0 after:transition-all after:duration-300 hover:after:w-full"
+                >
+                  Contact Us
+                </Link>
+              </li>
+            )}
+
+            {reservedPages?.enableSpecialOrderPage && (
+              <li>
+                <Link
+                  href="/store/special-requests"
+                  className="after:bg-primary relative font-light after:absolute after:bottom-0 after:left-0 after:h-[1.5px] after:w-0 after:transition-all after:duration-300 hover:after:w-full"
+                >
+                  Special Order
+                </Link>
+              </li>
+            )}
+
+            {reservedPages?.enableFaqPage && (
+              <li>
+                <Link
+                  href="/store/frequently-asked-questions"
+                  className="after:bg-primary relative font-light after:absolute after:bottom-0 after:left-0 after:h-[1.5px] after:w-0 after:transition-all after:duration-300 hover:after:w-full"
+                >
+                  FAQ
+                </Link>
+              </li>
+            )}
+
             <li>
-              <Link href="/our-fit" className="hover:text-gray-300">
-                Our Fit
+              <Link
+                href="/policies/refund-policy"
+                className="after:bg-primary relative font-light after:absolute after:bottom-0 after:left-0 after:h-[1.5px] after:w-0 after:transition-all after:duration-300 hover:after:w-full"
+              >
+                Refund Policy
               </Link>
             </li>
             <li>
-              <Link href="/returns" className="hover:text-gray-300">
-                Exchanges & Returns
-              </Link>
-            </li>
-            <li>
-              <Link href="/account" className="hover:text-gray-300">
-                My Account
-              </Link>
-            </li>
-            <li>
-              <Link href="/contact" className="hover:text-gray-300">
-                Ask Us
-              </Link>
-            </li>
-            <li>
-              <Link href="/return-policy" className="hover:text-gray-300">
-                Return Policy
-              </Link>
-            </li>
-            <li>
-              <Link href="/terms" className="hover:text-gray-300">
-                Terms of Service
-              </Link>
-            </li>
-            <li>
-              <Link href="/privacy" className="hover:text-gray-300">
-                Privacy Policy
+              <Link
+                href="/policies/shipping-policy"
+                className="after:bg-primary relative font-light after:absolute after:bottom-0 after:left-0 after:h-[1.5px] after:w-0 after:transition-all after:duration-300 hover:after:w-full"
+              >
+                Shipping Policy
               </Link>
             </li>
           </ul>
         </div>
 
         {/* Engage With Us Section */}
-        <div>
-          <h3 className="mb-4 text-lg font-bold">ENGAGE WITH US</h3>
+        <div className="col-span-1">
+          <h3 className="mb-4 text-lg font-bold">INFORMATION</h3>
           <ul className="space-y-2">
+            {reservedPages?.enableAboutPage && (
+              <li>
+                <Link
+                  href="/store/about"
+                  className="after:bg-primary relative font-light after:absolute after:bottom-0 after:left-0 after:h-[1.5px] after:w-0 after:transition-all after:duration-300 hover:after:w-full"
+                >
+                  About Us
+                </Link>
+              </li>
+            )}
+
             <li>
-              <Link href="/gift-cards" className="hover:text-gray-300">
-                Gift Cards
+              <Link
+                href="/policies/terms-of-service"
+                className="after:bg-primary relative font-light after:absolute after:bottom-0 after:left-0 after:h-[1.5px] after:w-0 after:transition-all after:duration-300 hover:after:w-full"
+              >
+                Terms of Service
               </Link>
             </li>
             <li>
-              <Link href="/balance" className="hover:text-gray-300">
-                Gift Card Balance
+              <Link
+                href="/policies/privacy-policy"
+                className="after:bg-primary relative font-light after:absolute after:bottom-0 after:left-0 after:h-[1.5px] after:w-0 after:transition-all after:duration-300 hover:after:w-full"
+              >
+                Privacy Policy
               </Link>
             </li>
             <li>
-              <Link href="/instagram" className="hover:text-gray-300">
-                Instagram
-              </Link>
-            </li>
-            <li>
-              <Link href="/facebook" className="hover:text-gray-300">
-                Facebook
-              </Link>
-            </li>
-            <li>
-              <Link href="/twitter" className="hover:text-gray-300">
-                Twitter
-              </Link>
-            </li>
-            <li>
-              <Link href="/blog" className="hover:text-gray-300">
+              <Link
+                href="/blog"
+                className="after:bg-primary relative font-light after:absolute after:bottom-0 after:left-0 after:h-[1.5px] after:w-0 after:transition-all after:duration-300 hover:after:w-full"
+              >
                 Our Blog
               </Link>
             </li>
@@ -96,74 +109,25 @@ const Footer: React.FC = () => {
         </div>
 
         {/* Company Info Section */}
-        <div>
-          <h3 className="mb-4 text-lg font-bold">COMPANY INFO</h3>
-          <ul className="space-y-2">
-            <li>
-              <Link href="/about" className="hover:text-gray-300">
-                Our Story
-              </Link>
-            </li>
-            <li>
-              <Link href="/shipping" className="hover:text-gray-300">
-                Shipping Policy
-              </Link>
-            </li>
-            <li>
-              <Link href="/faq" className="hover:text-gray-300">
-                FAQ
-              </Link>
-            </li>
-            <li>
-              <Link href="/reviews" className="hover:text-gray-300">
-                Reviews
-              </Link>
-            </li>
-            <li>
-              <Link href="/careers" className="hover:text-gray-300">
-                We&apos;re Hiring
-              </Link>
-            </li>
-            <li>
-              <Link href="/press" className="hover:text-gray-300">
-                Press Kit
-              </Link>
-            </li>
-            <li>
-              <Link href="/collections" className="hover:text-gray-300">
-                Shop All Collections
-              </Link>
-            </li>
-          </ul>
+        <div className="col-span-2">
+          <h3 className="mb-4 text-lg font-bold">ABOUT US</h3>
+          <p className="mb-4">
+            <strong>Atomic Trade</strong> is about breaking commerce down to its
+            smallest, most just components — so that every creator, every
+            ecosystem, and every community retains control over the value they
+            generate.
+          </p>
+          <strong className="mb-4">Detroit, MI</strong>
         </div>
 
         {/* Newsletter Section */}
-        <div>
+        <div className="col-span-2">
           <h3 className="mb-4 text-lg font-bold">NEVER MISS A SALE AGAIN</h3>
           <p className="mb-4">
             Get exclusive promotions, product updates, and more by signing up
             for our newsletter
           </p>
-          <form onSubmit={handleSubmit} className="mb-6">
-            <div className="flex">
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Enter your email"
-                className="flex-grow rounded-l bg-gray-800 px-4 py-2 text-white focus:outline-none"
-                required
-              />
-              <button
-                type="submit"
-                className="rounded-r bg-white px-4 py-2 text-gray-900 transition-colors hover:bg-gray-200"
-                title="Subscribe to our newsletter"
-              >
-                <Mail size={24} />
-              </button>
-            </div>
-          </form>
-
+          <NewsletterForm />
           {/* Social Media Icons */}
           <div className="flex space-x-4">
             <Link href="/instagram" className="hover:text-gray-300">
@@ -183,7 +147,7 @@ const Footer: React.FC = () => {
       <div className="mx-auto mt-8 max-w-7xl border-gray-400 pt-8">
         <div className="flex flex-col items-center justify-between md:flex-row">
           <p className="text-sm text-gray-400">
-            © 2024 Atomic Trade. All rights reserved.
+            © {year} {storeBrand?.name ?? "Atomic Trade"}. All rights reserved.
           </p>
           <div className="mt-4 md:mt-0">
             <button className="text-sm text-gray-400 hover:text-white">

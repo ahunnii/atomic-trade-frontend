@@ -3,6 +3,9 @@ import { collectionRouter } from "~/server/api/routers/collection";
 import { productRouter } from "~/server/api/routers/product";
 import { createCallerFactory, createTRPCRouter } from "~/server/api/trpc";
 import { cartRouter } from "./routers/cart";
+import { policiesRouter } from "./routers/policies";
+import { reservedPageRouter } from "./routers/reserved-page";
+import { sitePageRouter } from "./routers/site-page";
 import { storeRouter } from "./routers/store";
 
 /**
@@ -16,6 +19,9 @@ export const appRouter = createTRPCRouter({
   collection: collectionRouter,
   cart: cartRouter,
   store: storeRouter,
+  sitePage: sitePageRouter,
+  reservedPage: reservedPageRouter,
+  policies: policiesRouter,
 });
 
 // export type definition of API

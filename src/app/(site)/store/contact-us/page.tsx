@@ -1,6 +1,18 @@
+import { NotFound } from "~/app/_components/not-found";
+import { api } from "~/trpc/server";
 import { ContactUsForm } from "./_components/contact-us-form";
 
+export const metadata = {
+  title: "Contact Us",
+};
+
 export default async function ContactPage() {
+  const reservedPage = await api.reservedPage.getBySlug("contact-us");
+
+  if (!reservedPage?.isEnabled) {
+    return <NotFound />;
+  }
+
   return (
     <div className="mx-auto w-full max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
       <h1 className="mb-10 text-center text-4xl font-bold tracking-wider uppercase">

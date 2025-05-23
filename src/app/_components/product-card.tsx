@@ -69,34 +69,32 @@ export function ProductCard({
           selectedVariant.compareAtPriceInCents ? (
             <div className="flex items-center gap-2">
               <p className="font-medium text-red-600">
-                {formatCurrency(selectedVariant.priceInCents / 100)}
+                {formatCurrency(selectedVariant.priceInCents)}
               </p>
               <p className="text-gray-500 line-through">
-                {formatCurrency(selectedVariant.compareAtPriceInCents / 100)}
+                {formatCurrency(selectedVariant.compareAtPriceInCents)}
               </p>
             </div>
           ) : (
             <p className="text-gray-600">
-              {formatCurrency(selectedVariant.priceInCents / 100)}
+              {formatCurrency(selectedVariant.priceInCents)}
             </p>
           )
         ) : lowestCompareAtPrice && lowestCompareAtPrice > 0 ? (
           <div className="flex items-center gap-2">
             <p className="font-medium text-red-600">
-              {formatCurrency((lowestPrice ?? 0) / 100)}
+              {formatCurrency(lowestPrice ?? 0)}
             </p>
             <p className="text-gray-500 line-through">
-              {formatCurrency(lowestCompareAtPrice / 100)}
+              {formatCurrency(lowestCompareAtPrice)}
             </p>
           </div>
         ) : hasDifferentPrices ? (
           <p className="text-gray-600">
-            From {formatCurrency((lowestPrice ?? 0) / 100)}
+            From {formatCurrency(lowestPrice ?? 0)}
           </p>
         ) : (
-          <p className="text-gray-600">
-            {formatCurrency((lowestPrice ?? 0) / 100)}
-          </p>
+          <p className="text-gray-600">{formatCurrency(lowestPrice ?? 0)}</p>
         )}
       </div>
 

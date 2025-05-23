@@ -1,9 +1,8 @@
 "use client";
 
-import type { Product, Variation } from "@prisma/client";
 import { ShoppingCartIcon, X } from "lucide-react";
 import Image from "next/image";
-import { useEffect, useMemo, useState } from "react";
+
 import { Button } from "~/components/ui/button";
 import {
   Sheet,
@@ -19,42 +18,17 @@ import { LoadButton } from "../common/load-button";
 import { QuantityNumberInput } from "../inputs/quantity-number-input";
 
 import { useRouter } from "next/navigation";
-type CartItem = {
-  id: string;
-  variantId: string;
-  variant: Variation & { product?: Product };
-  quantity: number;
-};
 
-type Cart = {
-  id: string;
-  cartItems: CartItem[];
-};
-
-// Helper function to clear cart cookie via API
-async function clearCartCookie() {
-  try {
-    const response = await fetch("/api/cart/set-cookie", {
-      method: "DELETE",
-    });
-    return response.ok;
-  } catch (error) {
-    console.error("Failed to clear cart cookie:", error);
-    return false;
-  }
-}
-
-export function ShoppingCart({
-  navCartId,
-  cart,
-  cartQuantity = 0,
-}: {
+type Props = {
+  cartQuantity: number;
   navCartId?: string;
-  cart?: Cart;
-  cartQuantity?: number;
-}) {
-  const utils = api.useUtils();
+};
 
+export function ShoppingCart({ navCartId, cartQuantity }: Props) {
+  const utils = api.useUtils();
+  const router = useRouter();
+
+  const { data: cartItems } = api.cart.getItems.useQuery(navCartId ?? "");
   const { data: currentCart } = api.cart.get.useQuery(navCartId ?? "", {
     enabled: !!navCartId,
   });
@@ -62,20 +36,12 @@ export function ShoppingCart({
   const { data: store } = api.store.get.useQuery();
 
   const adjustQuantity = api.cart.adjustQuantity.useMutation({
-    onSettled: () => {
-      void utils.cart.invalidate();
-    },
+    onSettled: () => void utils.cart.invalidate(),
   });
 
   const deleteItem = api.cart.deleteItem.useMutation({
-    onSettled: () => {
-      void utils.cart.invalidate();
-    },
+    onSettled: () => void utils.cart.invalidate(),
   });
-
-  const currentCartQuantity =
-    currentCart?.cartItems.reduce((total, item) => total + item.quantity, 0) ??
-    0;
 
   const currentCartTotal =
     currentCart?.cartItems.reduce(
@@ -83,20 +49,15 @@ export function ShoppingCart({
       0,
     ) ?? 0;
 
-  // Use currentCartQuantity if it's been updated, otherwise use the initial cartQuantity
-  const displayQuantity = currentCart ? currentCartQuantity : cartQuantity;
-
-  const router = useRouter();
-
   return (
     <Sheet>
       <SheetTrigger asChild>
         <div className="flex cursor-pointer items-center gap-2">
           <div className="relative">
             <ShoppingCartIcon className="h-5 w-5" />
-            {displayQuantity > 0 && (
+            {(cartItems ?? cartQuantity ?? 0) > 0 && (
               <span className="bg-primary/75 absolute -top-2 -right-2 flex h-4 w-4 items-center justify-center rounded-full text-xs font-bold text-white">
-                {displayQuantity}
+                {cartItems ?? cartQuantity ?? 0}
               </span>
             )}
           </div>
@@ -110,7 +71,7 @@ export function ShoppingCart({
         </SheetHeader>
         <div className="flex-1 overflow-y-auto">
           <div className="flex flex-col gap-4 p-4">
-            {!cart || cart.cartItems.length === 0 ? (
+            {!currentCart || currentCart.cartItems.length === 0 ? (
               <div className="text-muted-foreground text-center">
                 Your cart is empty
               </div>
@@ -165,7 +126,7 @@ export function ShoppingCart({
                         defaultValue={item.quantity}
                         onChange={(value) => {
                           adjustQuantity.mutate({
-                            cartId: cart?.id ?? "",
+                            cartId: navCartId ?? "",
                             variantId: item.variantId,
                             quantity: value,
                           });
@@ -179,7 +140,7 @@ export function ShoppingCart({
                         loadingText=""
                         onClick={() => {
                           deleteItem.mutate({
-                            cartId: cart?.id ?? "",
+                            cartId: navCartId ?? "",
                             variantId: item.variantId,
                           });
                         }}
@@ -193,7 +154,7 @@ export function ShoppingCart({
             )}
           </div>
         </div>
-        {cart && cart.cartItems.length > 0 && (
+        {currentCart && currentCart.cartItems.length > 0 && (
           <div className="border-t p-4">
             <div className="space-y-4">
               <div className="flex justify-between text-sm">
@@ -213,23 +174,9 @@ export function ShoppingCart({
                       ? (store?.flatRateAmount ?? 0)
                       : (store?.minFreeShipping ?? 0),
                   )}
-                  {/* {store?.hasFlatRate
-                    ? `${new Intl.NumberFormat("en-US", {
-                        style: "currency",
-                        currency: "USD",
-                      }).format((store.flatRateAmount ?? 0) / 100)}`
-                    : store?.hasFreeShipping
-                      ? "Free Shipping"
-                      : `${new Intl.NumberFormat("en-US", {
-                          style: "currency",
-                          currency: "USD",
-                        }).format((store?.flatRateAmount ?? 0) / 100)}`} */}
                 </span>
               </div>
-              {/* <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Tax estimate</span>
-                <span>$4.50</span>
-              </div> */}
+
               <div className="flex justify-between font-medium">
                 <span>Order total</span>
                 <span>
