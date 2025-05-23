@@ -116,8 +116,13 @@ export const UserDropdown = ({
           <DropdownMenuSeparator />
           <DropdownMenuGroup>
             <DropdownMenuItem>
-              <Link href="/profile" className="w-full">
-                Profile
+              <Link href="/account/info" className="w-full">
+                Account
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem>
+              <Link href="/account/orders" className="w-full">
+                Orders
               </Link>
             </DropdownMenuItem>
           </DropdownMenuGroup>
