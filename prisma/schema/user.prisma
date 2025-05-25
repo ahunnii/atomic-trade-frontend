@@ -99,6 +99,10 @@ model Customer {
   subscribedToEmailPromos       Boolean @default(false)
   subscribedToSmsPromos         Boolean @default(false)
   subscribedToEmailNewsletter   Boolean @default(false)
+  
+  newsletterConfirmed     Boolean  @default(false)
+  newsletterToken         String?  // null unless awaiting confirmation
+  newsletterTokenExpires  DateTime?
 
   birthday    DateTime?
   gender      String?

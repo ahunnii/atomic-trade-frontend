@@ -5,10 +5,17 @@ import { env } from "~/env";
 import { calculateCartDiscounts } from "~/lib/discounts/calculate-cart-discounts";
 import { emailService } from "~/lib/email";
 import { ContactUsEmail } from "~/lib/email/email-templates/contact-us-email";
+import { NewsletterConfirmedEmail } from "~/lib/email/email-templates/newsletter-confirmed-email";
+import { NewsletterSignUpEmail } from "~/lib/email/email-templates/newsletter-sign-up-email";
+import { NewsletterUnsubscribedEmail } from "~/lib/email/email-templates/newsletter-unsubscribed-email";
 import { SpecialRequestEmail } from "~/lib/email/email-templates/special-request-email";
 import { paymentService } from "~/lib/payments";
 
-import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
+import {
+  createTRPCRouter,
+  protectedProcedure,
+  publicProcedure,
+} from "~/server/api/trpc";
 import { formatNoRespondEmail } from "~/utils/format-store-emails";
 
 export const storeRouter = createTRPCRouter({
@@ -378,4 +385,218 @@ export const storeRouter = createTRPCRouter({
         message: "Cart discounts calculated successfully",
       };
     }),
+
+  subscribeToNewsletter: publicProcedure
+    .input(z.object({ email: z.string().email() }))
+    .mutation(async ({ ctx, input }) => {
+      const { email } = input;
+
+      const storeSlug = env.STORE_NAME.toLowerCase().replace(/ /g, "-");
+
+      const store = await ctx.db.store.findUnique({
+        where: { slug: storeSlug },
+      });
+
+      if (!store) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Store not found" });
+      }
+
+      const token = crypto.randomUUID();
+      const expires = new Date(Date.now() + 1000 * 60 * 60 * 24); // 24h expiration
+      const noRespondEmail = formatNoRespondEmail(store.name);
+
+      await ctx.db.customer.upsert({
+        where: { email },
+        update: {
+          newsletterToken: token,
+          newsletterTokenExpires: expires,
+          subscribedToEmailNewsletter: false,
+          newsletterConfirmed: false,
+        },
+        create: {
+          email,
+          newsletterToken: token,
+          newsletterTokenExpires: expires,
+          subscribedToEmailNewsletter: false,
+          newsletterConfirmed: false,
+          storeId: store.id,
+          firstName: "Guest",
+          lastName: "",
+        },
+      });
+
+      const confirmUrl = `${env.NEXT_PUBLIC_HOSTNAME}/newsletter/confirm?token=${token}`;
+
+      await emailService.sendEmail({
+        to: email,
+        from: noRespondEmail,
+        subject: `Confirm your subscription`,
+        template: NewsletterSignUpEmail,
+        data: {
+          logoUrl: store.logo ?? "",
+          email: input.email,
+          storeName: store.name,
+          previewText: "Confirm your subscription",
+          confirmUrl,
+        },
+      });
+
+      return {
+        data: true,
+        message: "Please check your email to confirm your subscription",
+      };
+    }),
+
+  confirmNewsletterSubscription: publicProcedure
+    .input(z.object({ token: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const { token } = input;
+
+      const storeSlug = env.STORE_NAME.toLowerCase().replace(/ /g, "-");
+
+      const store = await ctx.db.store.findUnique({
+        where: { slug: storeSlug },
+      });
+
+      if (!store) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Store not found" });
+      }
+
+      const noRespondEmail = formatNoRespondEmail(store.name);
+
+      const customer = await ctx.db.customer.findFirst({
+        where: {
+          newsletterToken: token,
+          newsletterTokenExpires: { gte: new Date() },
+        },
+      });
+
+      if (!customer) {
+        return {
+          data: false,
+          message:
+            "Token invalid or expired. Please sign up again in order to confirm your subscription.",
+        };
+      }
+
+      await ctx.db.customer.update({
+        where: { id: customer.id },
+        data: {
+          newsletterConfirmed: true,
+          newsletterToken: null,
+          newsletterTokenExpires: null,
+          subscribedToEmailNewsletter: true,
+        },
+      });
+
+      const unsubscribeUrl = `${env.NEXT_PUBLIC_HOSTNAME}/newsletter/unsubscribe?email=${customer.email}`;
+
+      await emailService.sendEmail({
+        to: customer.email,
+        from: noRespondEmail,
+        subject: `Welcome to the ${store.name} community!`,
+        template: NewsletterConfirmedEmail,
+        data: {
+          logoUrl: store.logo ?? "",
+          email: customer.email,
+          storeName: store.name,
+          previewText: "Welcome to the community!",
+          unsubscribeUrl,
+        },
+      });
+
+      return { data: true, message: "Newsletter subscription confirmed" };
+    }),
+
+  unsubscribeFromNewsletter: publicProcedure
+    .input(z.object({ email: z.string().email() }))
+    .mutation(async ({ ctx, input }) => {
+      const { email } = input;
+
+      const storeSlug = env.STORE_NAME.toLowerCase().replace(/ /g, "-");
+
+      const store = await ctx.db.store.findUnique({
+        where: { slug: storeSlug },
+      });
+
+      if (!store) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Store not found" });
+      }
+
+      const noRespondEmail = formatNoRespondEmail(store.name);
+
+      const customer = await ctx.db.customer.findFirst({
+        where: { email },
+      });
+
+      if (!customer) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Customer not found",
+        });
+      }
+
+      await ctx.db.customer.update({
+        where: { id: customer.id },
+        data: {
+          subscribedToEmailNewsletter: false,
+          newsletterConfirmed: false,
+          newsletterToken: null,
+          newsletterTokenExpires: null,
+        },
+      });
+
+      await emailService.sendEmail({
+        to: customer.email,
+        from: noRespondEmail,
+        subject: `You've been unsubscribed from ${store.name}'s newsletter`,
+        template: NewsletterUnsubscribedEmail,
+        data: {
+          logoUrl: store.logo ?? "",
+          email: customer.email,
+          storeName: store.name,
+        },
+      });
+
+      return { data: true, message: "Newsletter subscription unsubscribed" };
+    }),
+
+  getNewsletterStatus: protectedProcedure.query(async ({ ctx }) => {
+    const email = ctx.session.user.email;
+    const storeSlug = env.STORE_NAME.toLowerCase().replace(/ /g, "-");
+
+    if (!email) {
+      throw new TRPCError({
+        code: "UNAUTHORIZED",
+        message: "Unauthorized",
+      });
+    }
+
+    const store = await ctx.db.store.findUnique({
+      where: { slug: storeSlug },
+    });
+
+    if (!store) {
+      throw new TRPCError({
+        code: "NOT_FOUND",
+        message: "Store not found",
+      });
+    }
+
+    const customer = await ctx.db.customer.findFirst({
+      where: { email, storeId: store?.id },
+      select: {
+        subscribedToEmailNewsletter: true,
+        newsletterConfirmed: true,
+
+        newsletterTokenExpires: true,
+      },
+    });
+
+    return {
+      subscribedToEmailNewsletter: customer?.subscribedToEmailNewsletter,
+      newsletterConfirmed: customer?.newsletterConfirmed,
+      newsletterTokenExpires: customer?.newsletterTokenExpires,
+    };
+  }),
 });

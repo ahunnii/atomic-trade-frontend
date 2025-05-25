@@ -1,36 +1,46 @@
 "use client";
-import { toastService } from "@dreamwalker-studios/toasts";
+
 import { Mail } from "lucide-react";
 import { useState, type FormEvent } from "react";
+import { useDefaultMutationActions } from "~/hooks/use-default-mutation-actions";
+import { api } from "~/trpc/react";
+import { LoadButton } from "../common/load-button";
+import { Input } from "../ui/input";
 
 export const NewsletterForm = () => {
   const [email, setEmail] = useState("");
 
+  const { defaultActions } = useDefaultMutationActions({
+    invalidateEntities: ["store"],
+  });
+  const subscribeToNewsletterMutation =
+    api.store.subscribeToNewsletter.useMutation(defaultActions);
+
   const handleSubmit = (e: FormEvent) => {
-    e.preventDefault();
-    // TODO: Implement newsletter subscription logic
-    setEmail("");
-    toastService.inform("Functionality not implemented yet");
+    subscribeToNewsletterMutation.mutate({ email });
   };
 
   return (
     <form onSubmit={handleSubmit} className="mb-6">
-      <div className="flex">
-        <input
+      <div className="flex items-center">
+        <Input
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="Enter your email"
-          className="flex-grow rounded-l bg-gray-800 px-4 py-2 text-white focus:outline-none"
+          className="bg-accent text-primary rounded-r-none"
           required
+          disabled={subscribeToNewsletterMutation.isPending}
         />
-        <button
+        <LoadButton
+          isLoading={subscribeToNewsletterMutation.isPending}
           type="submit"
-          className="rounded-r bg-white px-4 py-2 text-gray-900 transition-colors hover:bg-gray-200"
           title="Subscribe to our newsletter"
+          variant="outline"
+          className="rounded-l-none"
         >
           <Mail size={24} />
-        </button>
+        </LoadButton>
       </div>
     </form>
   );
