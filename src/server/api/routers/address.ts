@@ -1,9 +1,5 @@
 import { z } from "zod";
-import {
-  basicInfoSchema,
-  profileSchema,
-} from "~/app/(site)/account/info/_validators/schema";
-import { env } from "~/env";
+
 import { addressValidator } from "~/lib/validators/geocoding";
 
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
@@ -13,9 +9,7 @@ export const addressRouter = createTRPCRouter({
     .input(z.string())
     .query(async ({ ctx, input: addressId }) => {
       const address = await ctx.db.address.findUnique({
-        where: {
-          id: addressId,
-        },
+        where: { id: addressId },
       });
 
       return address;

@@ -17,23 +17,27 @@ import { formatCurrency } from "~/utils/format-currency";
 import { LoadButton } from "../common/load-button";
 import { QuantityNumberInput } from "../inputs/quantity-number-input";
 
+import type { Store } from "@prisma/client";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 type Props = {
   cartQuantity: number;
   navCartId?: string;
+  store?: Store | null;
 };
 
-export function ShoppingCart({ navCartId, cartQuantity }: Props) {
+export function ShoppingCart({ navCartId, cartQuantity, store }: Props) {
   const utils = api.useUtils();
   const router = useRouter();
 
-  const { data: cartItems } = api.cart.getItems.useQuery(navCartId ?? "");
-  const { data: currentCart } = api.cart.get.useQuery(navCartId ?? "", {
+  const { data: cartItems } = api.cart.getItems.useQuery(navCartId ?? "", {
     enabled: !!navCartId,
   });
 
-  const { data: store } = api.store.get.useQuery();
+  const { data: currentCart } = api.cart.get.useQuery(navCartId ?? "", {
+    enabled: !!navCartId,
+  });
 
   const adjustQuantity = api.cart.adjustQuantity.useMutation({
     onSettled: () => void utils.cart.invalidate(),
@@ -49,8 +53,9 @@ export function ShoppingCart({ navCartId, cartQuantity }: Props) {
       0,
     ) ?? 0;
 
+  const [open, setOpen] = useState(false);
   return (
-    <Sheet>
+    <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
         <div className="flex cursor-pointer items-center gap-2">
           <div className="relative">
@@ -189,6 +194,7 @@ export function ShoppingCart({ navCartId, cartQuantity }: Props) {
                 className="w-full"
                 onClick={() => {
                   void router.push("/cart");
+                  setOpen(false);
                 }}
               >
                 Go to cart

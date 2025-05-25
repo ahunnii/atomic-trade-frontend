@@ -28,6 +28,7 @@ import { getCartId } from "~/server/actions/cart";
 import { auth as authClient } from "~/server/auth";
 import { api, HydrateClient } from "~/trpc/server";
 
+import type { Store } from "@prisma/client";
 import Image from "next/image";
 import { env } from "~/env";
 import { ShoppingCart } from "./shopping-cart";
@@ -47,6 +48,7 @@ export async function NavBar() {
   const storeBrand = await api.store.getBrand();
   const cartItems = await api.cart.getItems(cartId ?? "");
   const session = await authClient();
+  const store = await api.store.get();
 
   const logo = {
     url: "/",
@@ -114,8 +116,7 @@ export async function NavBar() {
     },
   ];
   const auth = {
-    login: { title: "Login", url: "#" },
-    signup: { title: "Sign up", url: "#" },
+    login: { title: "Login", url: "/auth/sign-in" },
   };
 
   return (
@@ -148,9 +149,13 @@ export async function NavBar() {
                 </NavigationMenu>
               </div>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-4">
               <UserDropdown sessionData={session} />
-              <ShoppingCart navCartId={cartId} cartQuantity={cartItems ?? 0} />
+              <ShoppingCart
+                navCartId={cartId ?? ""}
+                cartQuantity={cartItems ?? 0}
+                store={(store as Store) ?? null}
+              />
             </div>
           </nav>
 
@@ -210,9 +215,9 @@ export async function NavBar() {
                       <Button asChild variant="outline">
                         <a href={auth.login.url}>{auth.login.title}</a>
                       </Button>
-                      <Button asChild>
+                      {/* <Button asChild>
                         <a href={auth.signup.url}>{auth.signup.title}</a>
-                      </Button>
+                      </Button> */}
                     </div>
                   </div>
                 </SheetContent>

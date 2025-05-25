@@ -1,14 +1,19 @@
 "use server";
 import { CheckCircle, XCircle } from "lucide-react";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { stripeClient } from "~/lib/payments/clients/stripe";
+import { CompletedOrder } from "~/lib/payments/components/completed-order";
 import { clearCartId, getCartId } from "~/server/actions/cart";
+import { auth } from "~/server/auth";
 import { api } from "~/trpc/server";
 
 type Props = { searchParams: Promise<{ session_id?: string }> };
 
 export default async function SuccessPage({ searchParams }: Props) {
   const { session_id } = await searchParams;
+
+  const session = await auth();
   let isSuccess = false;
   let errorMessage = "";
 
@@ -19,11 +24,11 @@ export default async function SuccessPage({ searchParams }: Props) {
 
       if (isSuccess) {
         // Delete the cart after successful payment
-        const cartId = await getCartId();
-        if (cartId) {
-          await api.cart.delete(cartId);
-          await clearCartId();
-        }
+        // const cartId = await getCartId();
+        // if (cartId) {
+        //   await api.cart.delete(cartId);
+        //   await clearCartId();
+        // }
       } else {
         errorMessage = "Your payment was not successful. Please try again.";
       }
@@ -35,10 +40,18 @@ export default async function SuccessPage({ searchParams }: Props) {
     errorMessage = "No session ID provided. Please try checking out again.";
   }
 
+  if (!session_id && session?.user?.id) {
+    redirect("/account/orders");
+  }
+
+  if (!session_id && !session?.user?.id) {
+    redirect("/auth/sign-in?callbackUrl=/account/orders");
+  }
+
   return (
     <div className="container mx-auto min-h-[80svh] px-4 py-8">
       <div className="flex flex-col items-center justify-center space-y-6">
-        {isSuccess ? (
+        {/* {isSuccess ? (
           <>
             <CheckCircle className="h-16 w-16 text-green-500" />
             <h1 className="text-center text-4xl font-bold">Thank You!</h1>
@@ -57,7 +70,9 @@ export default async function SuccessPage({ searchParams }: Props) {
               {errorMessage}
             </p>
           </>
-        )}
+        )} */}
+
+        <CompletedOrder session_id={session_id ?? ""} />
         <Link
           href="/collections/all-products"
           className="group relative mt-8 block text-center text-base font-medium"

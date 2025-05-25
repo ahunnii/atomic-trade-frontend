@@ -3,14 +3,14 @@ import DefaultPageLayout from "~/app/_components/default-page-layout";
 import { api } from "~/trpc/server";
 
 export const metadata = {
-  title: "Blogs",
+  title: "Blog",
 };
 
 export default async function BlogsPage() {
   const blogs = await api.blog.getPreviews();
 
   return (
-    <DefaultPageLayout title="Blogs">
+    <DefaultPageLayout title="Blog">
       {blogs.map((blog) => (
         <Link
           key={blog.id}

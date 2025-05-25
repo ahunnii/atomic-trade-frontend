@@ -8,6 +8,7 @@
  */
 
 import { initTRPC, TRPCError } from "@trpc/server";
+import { cookies } from "next/headers";
 import superjson from "superjson";
 import { ZodError } from "zod";
 
@@ -29,9 +30,32 @@ import { db } from "~/server/db";
 export const createTRPCContext = async (opts: { headers: Headers }) => {
   const session = await auth();
 
+  const cookieStore = await cookies();
+  let cart = null;
+
+  if (session?.user?.email) {
+    const customer = await db.customer.findFirst({
+      where: { email: session.user.email },
+      include: { cart: { include: { cartItems: true } } },
+    });
+    cart = customer?.cart ?? null;
+  }
+
+  if (!cart) {
+    const guestCartId = cookieStore.get("cartId")?.value;
+    if (guestCartId) {
+      cart = await db.cart.findUnique({
+        where: { id: guestCartId },
+        include: { cartItems: true },
+      });
+    }
+  }
+
   return {
     db,
     session,
+    cart,
+    cartId: cart?.id ?? null,
     ...opts,
   };
 };

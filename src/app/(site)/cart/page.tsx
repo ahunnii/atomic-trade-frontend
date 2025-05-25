@@ -1,9 +1,12 @@
-"use server";
 import Link from "next/link";
 import { getCartId } from "~/server/actions/cart";
 import { api } from "~/trpc/server";
 import { CartClient } from "./_components/cart-client";
 import { CartSummaryClient } from "./_components/cart-summary-client";
+
+export const metadata = {
+  title: "Cart",
+};
 
 export default async function CartPage() {
   const cartId = await getCartId();

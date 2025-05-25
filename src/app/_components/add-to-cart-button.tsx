@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useTransition } from "react";
 import { LoadButton } from "~/components/common/load-button";
 
-import { createCart, getCart } from "~/server/actions/cart";
+import { getCartId } from "~/server/actions/cart";
 import { api } from "~/trpc/react";
 
 export function AddToCartButton(props: {
@@ -23,20 +23,14 @@ export function AddToCartButton(props: {
 
   async function handleAddToCart() {
     startTransition(async () => {
-      let cart = await getCart();
+      const cartId = await getCartId();
 
-      if (!cart) {
-        await createCart();
-        void apiUtils.cart.invalidate();
-      }
-      cart = await getCart();
-
-      if (!cart) {
+      if (!cartId) {
         return;
       }
 
       await addToCart.mutateAsync({
-        cartId: cart.id,
+        cartId,
         variantId: props.variantId ?? "",
         quantity: props.quantity ?? 1,
       });

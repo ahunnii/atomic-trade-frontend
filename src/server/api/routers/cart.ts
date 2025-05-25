@@ -1,22 +1,7 @@
-import type { JsonObject } from "@prisma/client/runtime/library";
 import { z } from "zod";
 import { env } from "~/env";
-import { setCartId } from "~/server/actions/cart";
 
-import {
-  createTRPCRouter,
-  protectedProcedure,
-  publicProcedure,
-} from "~/server/api/trpc";
-
-type Block = {
-  id?: string;
-  type: string;
-  data: {
-    text: string;
-    level?: number;
-  };
-};
+import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 
 export const cartRouter = createTRPCRouter({
   getItems: publicProcedure.input(z.string()).query(async ({ ctx, input }) => {

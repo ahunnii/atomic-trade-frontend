@@ -9,17 +9,14 @@ import { LoadButton } from "~/components/common/load-button";
 import { Form } from "~/components/ui/form";
 import { useDefaultMutationActions } from "~/hooks/use-default-mutation-actions";
 import { api } from "~/trpc/react";
-import type {
-  BasicInfoFormSchema,
-  ProfileFormSchema,
-} from "../_validators/schema";
+import type { BasicInfoFormSchema } from "../_validators/schema";
 
 import { InputFormField } from "~/components/inputs";
 import { DateFormField } from "~/components/inputs/date-form-field";
 
 import { useState } from "react";
 import { Button } from "~/components/ui/button";
-import { basicInfoSchema, profileSchema } from "../_validators/schema";
+import { basicInfoSchema } from "../_validators/schema";
 
 type Props = {
   initialValues?: BasicInfoFormSchema;

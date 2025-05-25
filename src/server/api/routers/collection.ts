@@ -1,11 +1,7 @@
 import { z } from "zod";
 import { env } from "~/env";
 
-import {
-  createTRPCRouter,
-  protectedProcedure,
-  publicProcedure,
-} from "~/server/api/trpc";
+import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 
 function getMinPrice(variants: { priceInCents: number }[]) {
   return Math.min(...variants.map((v) => v.priceInCents));

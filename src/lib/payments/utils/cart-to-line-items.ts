@@ -35,6 +35,7 @@ export function cartToLineItems({ cartId, cartItems }: Props) {
             productId: item?.variant?.product?.id ?? "",
             variantId: item?.variant?.id ?? "",
             orderItemId: item?.id ?? "",
+            cartItemId: item?.id ?? "",
             cartId: cartId ?? "",
           },
         },

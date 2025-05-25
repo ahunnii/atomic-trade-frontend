@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { z } from "zod";
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 
@@ -7,27 +6,19 @@ import { env } from "~/env";
 const RESERVED_PAGES = [
   {
     slug: "contact-us",
-    content: {
-      title: "Contact Us",
-    },
+    content: { title: "Contact Us" },
   },
   {
     slug: "special-requests",
-    content: {
-      title: "Special Requests",
-    },
+    content: { title: "Special Requests" },
   },
   {
     slug: "about-us",
-    content: {
-      title: "About Us",
-    },
+    content: { title: "About Us" },
   },
   {
     slug: "frequently-asked-questions",
-    content: {
-      title: "Frequently Asked Questions",
-    },
+    content: { title: "Frequently Asked Questions" },
   },
 ];
 export const reservedPageRouter = createTRPCRouter({

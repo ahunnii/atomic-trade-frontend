@@ -13,15 +13,11 @@ export const generateMetadata = async ({ params }: Props) => {
   const post = await api.blog.get({ slug: blogSlug });
 
   if (!post) {
-    return {
-      title: "Blog Not Found",
-      description: "The requested blog post could not be found",
-    };
+    return { title: "Blog Not Found" };
   }
 
   return {
     title: post.title,
-    description: `Read ${post.title} on our blog`,
   };
 };
 

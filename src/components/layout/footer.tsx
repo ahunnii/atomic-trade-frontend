@@ -1,5 +1,7 @@
 import { Facebook, Instagram, Twitter } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
+import { Visa } from "public/cards/visa";
 import React from "react";
 import { api } from "~/trpc/server";
 import { NewsletterForm } from "./newsletter-form";
@@ -123,12 +125,13 @@ const Footer: React.FC = async () => {
         {/* Newsletter Section */}
         <div className="col-span-2">
           <h3 className="mb-4 text-lg font-bold">NEVER MISS A SALE AGAIN</h3>
+          {/* <h3 className="mb-4 text-lg font-bold">FOLLOW US</h3> */}
           <p className="mb-4">
             Get exclusive promotions, product updates, and more by signing up
             for our newsletter
           </p>
           <NewsletterForm />
-          {/* Social Media Icons */}
+
           <div className="flex space-x-4">
             <Link href="/instagram" className="hover:text-gray-300">
               <Instagram size={24} />
@@ -149,9 +152,9 @@ const Footer: React.FC = async () => {
           <p className="text-sm text-gray-400">
             © {year} {storeBrand?.name ?? "Atomic Trade"}. All rights reserved.
           </p>
-          <div className="mt-4 md:mt-0">
-            <button className="text-sm text-gray-400 hover:text-white">
-              USD $ ▼
+          <div className="mt-4 flex gap-4 md:mt-0">
+            <button className="hover:gray-500 text-sm text-gray-400">
+              USD $
             </button>
           </div>
         </div>

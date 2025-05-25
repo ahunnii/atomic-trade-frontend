@@ -2,11 +2,7 @@ import type { JsonObject } from "@prisma/client/runtime/library";
 import { z } from "zod";
 import { env } from "~/env";
 
-import {
-  createTRPCRouter,
-  protectedProcedure,
-  publicProcedure,
-} from "~/server/api/trpc";
+import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 
 type Block = {
   id?: string;

@@ -3,8 +3,9 @@ import Link from "next/link";
 
 import { NotFound } from "~/app/_components/not-found";
 import { MarkdownView } from "~/components/shared/markdown-view";
-import { Button } from "~/components/ui/button";
+import { Button, buttonVariants } from "~/components/ui/button";
 import { Switch } from "~/components/ui/switch";
+import { cn } from "~/lib/utils";
 import { auth } from "~/server/auth";
 import { api } from "~/trpc/server";
 
@@ -85,9 +86,14 @@ export default async function AccountInfoPage() {
                 </div>
                 <div className="flex items-center justify-between border-t border-gray-100 pt-4">
                   <p className="font-medium">${order.totalInCents / 100}</p>
-                  {/* <Button variant="outline" size="sm">
+                  <Link
+                    href={`/account/orders/${order.id}`}
+                    className={cn(
+                      buttonVariants({ variant: "outline", size: "sm" }),
+                    )}
+                  >
                     View Details
-                  </Button> */}
+                  </Link>
                 </div>
               </div>
             ))}

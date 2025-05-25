@@ -69,21 +69,24 @@ export async function POST(req: Request) {
         case "payment_intent.succeeded":
           console.log("payment_intent.succeeded", event.data.object);
           break;
-        // case "checkout.session.completed":
-        //   const checkoutSession = event.data.object;
-        //   if (checkoutSession.mode === "subscription") {
-        //     const subscriptionId = checkoutSession.subscription;
-        //     console.log("subscription", subscriptionId);
-        //     // await manageSubscriptionStatusChange(
-        //     //   subscriptionId as string,
-        //     //   checkoutSession.customer as string,
-        //     //   true,
-        //     // );
-        //   }
-        //   if (checkoutSession.mode === "payment") {
-        //     await api.payment.updateOrderFromCheckoutSession(checkoutSession);
-        //   }
-        // break;
+        case "checkout.session.completed":
+          const checkoutSession = event.data.object;
+          //   if (checkoutSession.mode === "subscription") {
+          //     const subscriptionId = checkoutSession.subscription;
+          //     console.log("subscription", subscriptionId);
+          //     // await manageSubscriptionStatusChange(
+          //     //   subscriptionId as string,
+          //     //   checkoutSession.customer as string,
+          //     //   true,
+          //     // );
+          //   }
+          if (checkoutSession.mode === "payment") {
+            await api.payment.createOrderFromCheckoutSession({
+              session: checkoutSession,
+              type: "stripe",
+            });
+          }
+          break;
         default:
           throw new Error("Unhandled relevant event!");
       }

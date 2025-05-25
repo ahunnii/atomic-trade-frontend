@@ -18,7 +18,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
-import { clearCartId } from "~/server/actions/cart";
 
 export const UserDropdown = ({
   sessionData,
@@ -29,19 +28,22 @@ export const UserDropdown = ({
   const router = useRouter();
 
   const signOutAction = () => {
-    void clearCartId();
-    void signOut();
+    router.push("/auth/sign-out");
   };
   if (!sessionData) {
     return (
       <>
         <Button
-          onClick={sessionData ? () => void signOut() : () => void signIn()}
-          variant={"ghost"}
+          onClick={
+            sessionData
+              ? () => void router.push("/auth/sign-out")
+              : () => void router.push("/auth/sign-in")
+          }
+          // variant={"outline"}
           className="hidden max-md:w-full md:flex"
           size="sm"
         >
-          Sign In
+          <User /> Sign In
         </Button>
 
         <Button
@@ -52,13 +54,6 @@ export const UserDropdown = ({
         >
           <User />
         </Button>
-        <Button
-          onClick={() => void router.push(`/auth/register`)}
-          className="hidden bg-teal-500 hover:bg-teal-600 max-md:w-full md:block dark:bg-teal-400 hover:dark:bg-teal-200"
-          size="sm"
-        >
-          Register
-        </Button>
       </>
     );
   } else
@@ -67,7 +62,7 @@ export const UserDropdown = ({
         <DropdownMenuTrigger asChild>
           <Button
             variant="ghost"
-            className="relative !flex w-auto justify-between gap-4 rounded py-4"
+            className="relative !flex w-auto justify-between gap-2 rounded py-4"
           >
             <Avatar className="h-8 w-8">
               <AvatarImage
@@ -79,12 +74,12 @@ export const UserDropdown = ({
               </AvatarFallback>
             </Avatar>
 
-            <span className="flex flex-col justify-start text-left">
+            {/* <span className="flex flex-col justify-start text-left">
               <span className="text-left">{sessionData?.user?.name}</span>
               <span className="text-muted-foreground text-left text-xs capitalize">
                 {sessionData?.user?.role as string}
               </span>
-            </span>
+            </span> */}
 
             <ChevronDown className="h-4 w-4" />
           </Button>

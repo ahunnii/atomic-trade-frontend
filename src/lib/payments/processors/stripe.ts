@@ -102,14 +102,16 @@ export class StripePaymentProcessor implements PaymentProcessor {
       payment_method_types: ["card"],
       line_items,
       mode: "payment",
+      billing_address_collection: "required",
       success_url:
         props.successUrl ??
-        `${origin}/cart/success=true&session_id={CHECKOUT_SESSION_ID}`,
+        `${origin}/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: props.returnUrl ?? `${origin}/cart?cancel=true`,
       discounts: orderDiscount ? [orderDiscount] : undefined,
       shipping_address_collection: {
         allowed_countries: ["US", "CA"],
       },
+
       automatic_tax: { enabled: true },
       metadata: {
         orderId: props?.orderId ?? "",

@@ -6,6 +6,7 @@ import { accountRouter } from "./routers/account";
 import { addressRouter } from "./routers/address";
 import { cartRouter } from "./routers/cart";
 import { orderRouter } from "./routers/order";
+import { paymentRouter } from "./routers/payment";
 import { policiesRouter } from "./routers/policies";
 import { reservedPageRouter } from "./routers/reserved-page";
 import { sitePageRouter } from "./routers/site-page";
@@ -28,6 +29,7 @@ export const appRouter = createTRPCRouter({
   reservedPage: reservedPageRouter,
   policies: policiesRouter,
   order: orderRouter,
+  payment: paymentRouter,
 });
 
 // export type definition of API

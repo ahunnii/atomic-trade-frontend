@@ -1,4 +1,3 @@
-import type { JsonObject } from "@prisma/client/runtime/library";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { contactUsSchema } from "~/app/(site)/store/contact-us/_validators/schema";
@@ -8,24 +7,9 @@ import { emailService } from "~/lib/email";
 import { ContactUsEmail } from "~/lib/email/email-templates/contact-us-email";
 import { SpecialRequestEmail } from "~/lib/email/email-templates/special-request-email";
 import { paymentService } from "~/lib/payments";
-import { checkoutSchema } from "~/lib/validators/store";
-import { setCartId } from "~/server/actions/cart";
 
-import {
-  createTRPCRouter,
-  protectedProcedure,
-  publicProcedure,
-} from "~/server/api/trpc";
+import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 import { formatNoRespondEmail } from "~/utils/format-store-emails";
-
-type Block = {
-  id?: string;
-  type: string;
-  data: {
-    text: string;
-    level?: number;
-  };
-};
 
 export const storeRouter = createTRPCRouter({
   getBrand: publicProcedure.query(async ({ ctx }) => {

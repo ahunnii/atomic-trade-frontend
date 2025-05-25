@@ -1,10 +1,6 @@
 import type { Product, Variation } from "@prisma/client";
-import { ShoppingCart } from "lucide-react";
-import Image from "next/image";
-import Link from "next/link";
 
-import { Button } from "~/components/ui/button";
-import { api, HydrateClient } from "~/trpc/server";
+import { api } from "~/trpc/server";
 import { formatCurrency } from "~/utils/format-currency";
 import { CheckoutSessionButton } from "./checkout-session-button";
 
