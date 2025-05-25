@@ -1,14 +1,12 @@
-import { SingleColumn } from "responsive-react-email";
-
-import { Text } from "@react-email/components";
-
 import {
   EmailBody,
   EmailCallToActionButton,
+  EmailColumn,
   EmailImportantText,
   EmailLogo,
   EmailSignature,
-} from "~/lib/email/components";
+  EmailText,
+} from "@atomic-trade/email";
 
 type Props = {
   email: string;
@@ -24,21 +22,21 @@ export const ContactUsEmail = (props: Props) => (
     previewText={props.previewText ?? `New update from ${props.storeName}`}
     isPreview={props.isPreview}
   >
-    <SingleColumn pX={25}>
+    <EmailColumn pX={25}>
       <EmailLogo />
-      <Text>Greetings from {props.storeName},</Text>
+      <EmailText>Greetings from {props.storeName},</EmailText>
 
-      <Text>
+      <EmailText>
         {props.name} has contacted you via the contact form on your website:
-      </Text>
+      </EmailText>
       <EmailImportantText>{props.message}</EmailImportantText>
-    </SingleColumn>
+    </EmailColumn>
 
-    <SingleColumn pX={25}>
-      <Text style={{ marginBottom: 4 }}>
+    <EmailColumn pX={25}>
+      <EmailText style={{ marginBottom: 4 }}>
         You can respond by replying to this email or by reaching out to them
         directly in a separate email below.
-      </Text>
+      </EmailText>
 
       <EmailCallToActionButton
         link={props.isPreview ? "#!" : `mailto:${props.email}`}
@@ -47,7 +45,7 @@ export const ContactUsEmail = (props: Props) => (
           margin: "24px 0 24px",
         }}
       />
-    </SingleColumn>
+    </EmailColumn>
     <EmailSignature name={props.storeName} />
   </EmailBody>
 );

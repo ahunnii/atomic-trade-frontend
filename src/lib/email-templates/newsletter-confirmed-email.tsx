@@ -1,9 +1,10 @@
-import { SingleColumn } from "responsive-react-email";
-
-import { Text } from "@react-email/components";
-
-import { EmailBody, EmailSignature } from "~/lib/email/components";
-import { EmailCustomLogo } from "../components/email-custom-logo";
+import {
+  EmailBody,
+  EmailColumn,
+  EmailCustomLogo,
+  EmailSignature,
+  EmailText,
+} from "@atomic-trade/email";
 
 type Props = {
   email: string;
@@ -21,27 +22,27 @@ export const NewsletterConfirmedEmail = (props: Props) => (
     }
     isPreview={props.isPreview}
   >
-    <SingleColumn pX={25}>
+    <EmailColumn pX={25}>
       <EmailCustomLogo logoUrl={props?.logoUrl ?? ""} />
-      <Text>Welcome to {props.storeName}!</Text>
+      <EmailText>Welcome to {props.storeName}!</EmailText>
 
-      <Text>
+      <EmailText>
         Thank you for joining our community! We&apos;re excited to share our
         latest products, exclusive offers, and insider updates with you.
-      </Text>
+      </EmailText>
 
-      <Text>
+      <EmailText>
         Look out for our next newsletter in your inbox soon. We promise to only
         send you content we think you&apos;ll love.
-      </Text>
-    </SingleColumn>
+      </EmailText>
+    </EmailColumn>
 
-    <SingleColumn pX={25}>
-      <Text style={{ fontSize: "12px", color: "#666", marginTop: "24px" }}>
+    <EmailColumn pX={25}>
+      <EmailText style={{ fontSize: "12px", color: "#666", marginTop: "24px" }}>
         To unsubscribe from our newsletter,{" "}
         <a href={props.isPreview ? "#!" : props.unsubscribeUrl}>click here</a>
-      </Text>
-    </SingleColumn>
+      </EmailText>
+    </EmailColumn>
     <EmailSignature name={props.storeName} />
   </EmailBody>
 );

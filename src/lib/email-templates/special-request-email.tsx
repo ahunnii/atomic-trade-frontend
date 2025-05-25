@@ -1,16 +1,14 @@
 /* eslint-disable @next/next/no-img-element */
-import { SingleColumn } from "responsive-react-email";
-
-import { Text } from "@react-email/components";
-
-import { env } from "~/env";
 import {
   EmailBody,
   EmailCallToActionButton,
+  EmailColumn,
   EmailImportantText,
   EmailLogo,
   EmailSignature,
-} from "~/lib/email/components";
+  EmailText,
+} from "@atomic-trade/email";
+import { env } from "~/env";
 
 type Props = {
   email: string;
@@ -31,20 +29,20 @@ export const SpecialRequestEmail = (props: Props) => (
     }
     isPreview={props.isPreview}
   >
-    <SingleColumn pX={25}>
+    <EmailColumn pX={25}>
       <EmailLogo />
-      <Text>Greetings from {props.storeName},</Text>
+      <EmailText>Greetings from {props.storeName},</EmailText>
 
-      <Text>
+      <EmailText>
         {props.name} has contacted you via the special request form on your
         website:
-      </Text>
+      </EmailText>
       <EmailImportantText>{props.message}</EmailImportantText>
       {props.images.length > 0 && (
         <div style={{ marginTop: 20, marginBottom: 20 }}>
-          <Text style={{ fontWeight: "bold", marginBottom: 10 }}>
+          <EmailText style={{ fontWeight: "bold", marginBottom: 10 }}>
             Reference Images:
-          </Text>
+          </EmailText>
           <div style={{ display: "flex", flexDirection: "column", gap: 15 }}>
             {props.images.map((image) => (
               <img
@@ -62,13 +60,13 @@ export const SpecialRequestEmail = (props: Props) => (
           </div>
         </div>
       )}
-    </SingleColumn>
+    </EmailColumn>
 
-    <SingleColumn pX={25}>
-      <Text style={{ marginBottom: 4 }}>
+    <EmailColumn pX={25}>
+      <EmailText style={{ marginBottom: 4 }}>
         You can inquire more about this request by replying to this email or by
         reaching out to them directly in a separate email below.
-      </Text>
+      </EmailText>
 
       <EmailCallToActionButton
         link={props.isPreview ? "#!" : `mailto:${props.email}`}
@@ -92,7 +90,7 @@ export const SpecialRequestEmail = (props: Props) => (
         <div
           style={{ height: "1px", width: "120px", backgroundColor: "#e5e7eb" }}
         />
-        <Text
+        <EmailText
           style={{
             color: "#6b7280",
             fontStyle: "italic",
@@ -101,7 +99,7 @@ export const SpecialRequestEmail = (props: Props) => (
           }}
         >
           or
-        </Text>
+        </EmailText>
         <div
           style={{ height: "1px", width: "120px", backgroundColor: "#e5e7eb" }}
         />
@@ -118,7 +116,7 @@ export const SpecialRequestEmail = (props: Props) => (
           margin: "0 0 24px",
         }}
       />
-    </SingleColumn>
+    </EmailColumn>
 
     <EmailSignature name={props.storeName} />
   </EmailBody>

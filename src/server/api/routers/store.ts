@@ -1,14 +1,20 @@
+import { emailService } from "@atomic-trade/email";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { contactUsSchema } from "~/app/(site)/store/contact-us/_validators/schema";
 import { env } from "~/env";
 import { calculateCartDiscounts } from "~/lib/discounts/calculate-cart-discounts";
-import { emailService } from "~/lib/email";
-import { ContactUsEmail } from "~/lib/email/email-templates/contact-us-email";
-import { NewsletterConfirmedEmail } from "~/lib/email/email-templates/newsletter-confirmed-email";
-import { NewsletterSignUpEmail } from "~/lib/email/email-templates/newsletter-sign-up-email";
-import { NewsletterUnsubscribedEmail } from "~/lib/email/email-templates/newsletter-unsubscribed-email";
-import { SpecialRequestEmail } from "~/lib/email/email-templates/special-request-email";
+import { NewsletterSignUpEmail } from "~/lib/email-templates/newsletter-sign-up-email";
+// import { emailService } from "~/lib/email";
+// import { ContactUsEmail } from "~/lib/email/email-templates/contact-us-email";
+// import { NewsletterConfirmedEmail } from "~/lib/email/email-templates/newsletter-confirmed-email";
+// import { NewsletterSignUpEmail } from "~/lib/email/email-templates/newsletter-sign-up-email";
+// import { NewsletterUnsubscribedEmail } from "~/lib/email/email-templates/newsletter-unsubscribed-email";
+// import { SpecialRequestEmail } from "~/lib/email/email-templates/special-request-email";
+import { ContactUsEmail } from "~/lib/email-templates/contact-us-email";
+import { NewsletterConfirmedEmail } from "~/lib/email-templates/newsletter-confirmed-email";
+import { NewsletterUnsubscribedEmail } from "~/lib/email-templates/newsletter-unsubscribed-email";
+import { SpecialRequestEmail } from "~/lib/email-templates/special-request-email";
 import { paymentService } from "~/lib/payments";
 
 import {

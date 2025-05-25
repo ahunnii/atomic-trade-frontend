@@ -9,12 +9,18 @@ import { Input } from "../ui/input";
 
 export const NewsletterForm = () => {
   const [email, setEmail] = useState("");
+  const apiUtils = api.useUtils();
 
   const { defaultActions } = useDefaultMutationActions({
     invalidateEntities: ["store"],
   });
   const subscribeToNewsletterMutation =
-    api.store.subscribeToNewsletter.useMutation(defaultActions);
+    api.store.subscribeToNewsletter.useMutation({
+      ...defaultActions,
+      onSettled: () => {
+        void apiUtils.store.invalidate();
+      },
+    });
 
   const handleSubmit = (e: FormEvent) => {
     subscribeToNewsletterMutation.mutate({ email });
