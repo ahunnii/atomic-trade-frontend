@@ -6,6 +6,11 @@ const config = {
   content: [
     "./src/**/*.{js,ts,jsx,tsx}",
     "./node_modules/@atomic-trade/payments/dist/**/*.{js,ts,jsx,tsx}",
+    "./node_modules/@atomic-trade/payments/dist/components/**/*.{js,ts,jsx,tsx}",
+    "./node_modules/@atomic-trade/payments/dist/components/shared/**/*.{js,ts,jsx,tsx}",
+    "./node_modules/@atomic-trade/payments/src/**/*.{js,ts,jsx,tsx}",
+    "./node_modules/@atomic-trade/payments/src/components/**/*.{js,ts,jsx,tsx}",
+    "./node_modules/@atomic-trade/payments/src/components/shared/**/*.{js,ts,jsx,tsx}",
   ],
   prefix: "",
   theme: {

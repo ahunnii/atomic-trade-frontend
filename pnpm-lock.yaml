@@ -15,8 +15,8 @@ importers:
         specifier: ^0.1.6
         version: 0.1.6(react-dom@19.1.0(react@19.1.0))(react-email@1.10.1)
       '@atomic-trade/payments':
-        specifier: ^0.0.7
-        version: 0.0.7(@types/node@20.17.30)(tailwindcss@4.1.7)
+        specifier: ^0.0.8
+        version: 0.0.8(@types/node@20.17.30)(tailwindcss@4.1.7)
       '@auth/prisma-adapter':
         specifier: ^2.7.2
         version: 2.9.0(@prisma/client@6.6.0(prisma@6.6.0(typescript@5.8.3))(typescript@5.8.3))
@@ -324,8 +324,8 @@ packages:
     resolution: {integrity: sha512-hzX8Bkrj9rFZvifROwrr2nGtSXi2dOwypMGFPiaCcoGpHQDFATEW6ylF9RwYcyAo6lNa7YF+xze9l9HuVHoaIQ==}
     engines: {node: '>=18.0.0'}
 
-  '@atomic-trade/payments@0.0.7':
-    resolution: {integrity: sha512-cnWOYW+TxyB9n1RTTzvbznhiG7CFT6kc09BlWlXVSDQvETC1/iD1zXoSYFdhxo/t7z73ZGEk+sfDKW3R8Ufkxg==}
+  '@atomic-trade/payments@0.0.8':
+    resolution: {integrity: sha512-n13qB7DcIypXNcYO5qlQMkh3lFrPlOUrLvR+/aMDbOgv9zMYZ9TybmWy2U55Y6rTRvfscmZhZIbP2OGYiZ83ow==}
     engines: {node: '>=18.0.0'}
     peerDependencies:
       tailwindcss: ^4.0.15
@@ -5202,7 +5202,7 @@ snapshots:
       - react-dom
       - react-email
 
-  '@atomic-trade/payments@0.0.7(@types/node@20.17.30)(tailwindcss@4.1.7)':
+  '@atomic-trade/payments@0.0.8(@types/node@20.17.30)(tailwindcss@4.1.7)':
     dependencies:
       '@heroicons/react': 2.2.0(react@19.1.0)
       lucide-react: 0.511.0(react@19.1.0)

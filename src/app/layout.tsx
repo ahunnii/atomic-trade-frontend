@@ -4,7 +4,10 @@ import { type Metadata } from "next";
 import { Geist } from "next/font/google";
 
 import { Toaster } from "@dreamwalker-studios/toasts";
+
 import { TRPCReactProvider } from "~/trpc/react";
+
+// import { ForceTailwindClasses } from "~/components/force-tailwind-classes";
 
 export const metadata: Metadata = {
   title: {
@@ -27,6 +30,7 @@ export default function RootLayout({
     <html lang="en" className={`${geist.variable}`}>
       <body>
         <TRPCReactProvider>
+          {/* <ForceTailwindClasses /> */}
           <Toaster />
           <>{children}</>
         </TRPCReactProvider>
