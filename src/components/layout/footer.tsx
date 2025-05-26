@@ -1,10 +1,11 @@
-import { Facebook, Instagram, Twitter } from "lucide-react";
-import Image from "next/image";
-import Link from "next/link";
-import { Visa } from "public/cards/visa";
 import React from "react";
+import Link from "next/link";
+import { Facebook, Instagram, Twitter } from "lucide-react";
+
 import { api } from "~/trpc/server";
+
 import { NewsletterForm } from "./newsletter-form";
+
 const Footer: React.FC = async () => {
   const storeBrand = await api.store.getBrand();
   const reservedPages = await api.reservedPage.getAll();

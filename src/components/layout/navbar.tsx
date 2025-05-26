@@ -129,13 +129,17 @@ export async function NavBar() {
             <div className="flex items-center gap-6">
               {/* Logo */}
               <a href={logo.url} className="flex items-center gap-2">
-                <div className="relative h-16 w-16">
+                <div
+                  className="relative h-16 w-auto max-w-40"
+                  // style={{ width: "auto", maxWidth: "16rem" }}
+                >
                   <Image
                     src={logo.src}
-                    fill
                     alt={logo.alt}
-                    className="object-contain"
+                    className="h-16 w-auto object-contain"
                     priority
+                    width={256}
+                    height={64}
                   />
                 </div>
                 <span className="sr-only text-lg font-semibold tracking-tighter">
@@ -165,18 +169,22 @@ export async function NavBar() {
             <div className="flex items-center justify-between px-4">
               {/* Logo */}
               <a href={logo.url} className="flex items-center gap-2">
-                <div className="relative h-16 w-16">
+                <div
+                  className="relative h-16"
+                  style={{ width: "auto", maxWidth: "16rem" }}
+                >
                   <Image
                     src={logo.src}
-                    fill
                     alt={logo.alt}
-                    className="object-contain"
+                    className="h-16 w-auto object-contain"
                     priority
-                  />{" "}
-                  <span className="sr-only text-lg font-semibold tracking-tighter">
-                    {logo.title}
-                  </span>
+                    width={256}
+                    height={64}
+                  />
                 </div>
+                <span className="sr-only text-lg font-semibold tracking-tighter">
+                  {logo.title}
+                </span>
               </a>
               <Sheet>
                 <SheetTrigger asChild>
@@ -191,10 +199,11 @@ export async function NavBar() {
                         <div className="relative h-8 w-8">
                           <Image
                             src={logo.src}
-                            fill
                             alt={logo.alt}
-                            className="object-contain"
+                            className="h-16 w-auto max-w-64 object-contain"
                             priority
+                            width={256}
+                            height={64}
                           />
                         </div>{" "}
                         <span className="sr-only text-lg font-semibold tracking-tighter">

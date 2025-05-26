@@ -2,7 +2,7 @@ import { db } from "~/server/db";
 
 import type { Address as PaymentAddress } from "@atomic-trade/payments";
 import type { Address } from "@prisma/client";
-import { paymentService } from "@atomic-trade/payments";
+import { paymentService, stripeClient } from "@atomic-trade/payments";
 
 export const createPaymentIntent = async ({
   sessionId,
@@ -11,8 +11,14 @@ export const createPaymentIntent = async ({
   sessionId: string;
   orderId: string;
 }) => {
+  // First get the checkout session to extract the payment_intent ID
+  const session = await stripeClient?.checkout.sessions.retrieve(sessionId);
+  if (!session?.payment_intent) {
+    throw new Error("No payment intent found in checkout session");
+  }
+
   const { amountPaid, intentId } = await paymentService.getPaymentIntent({
-    paymentIntentId: sessionId,
+    paymentIntentId: session.payment_intent as string,
   });
 
   await db.payment.create({

@@ -19,3 +19,13 @@ export const formatSupportEmail = (storeName: string) => {
 
   return `${storeName} Support <support@${hostname}>`;
 };
+
+export const formatEmailDomain = () => {
+  const hostname = env.NEXT_PUBLIC_HOSTNAME.replace(/^https?:\/\//, "");
+
+  if (!hostname) {
+    throw new Error("Hostname is not set");
+  }
+
+  return `${hostname}`;
+};

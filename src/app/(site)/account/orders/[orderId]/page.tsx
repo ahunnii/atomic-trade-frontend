@@ -1,6 +1,9 @@
+import "~/styles/globals.css";
+
 import { redirect } from "next/navigation";
 import { auth } from "~/server/auth";
 
+import type { StoreOrder } from "@atomic-trade/payments";
 import { CompletedOrder } from "@atomic-trade/payments";
 
 import { api } from "~/trpc/server";
@@ -32,7 +35,7 @@ export default async function OrderPage({ params }: Props) {
           (order?.metadata as { stripeCheckoutSessionId?: string | null })
             ?.stripeCheckoutSessionId ?? null
         }
-        order={order ?? null}
+        order={(order as unknown as StoreOrder) ?? null}
         backToAccount={true}
       />
     </AccountLayout>

@@ -105,6 +105,44 @@ export const webhookDataToOrder = async (session: Stripe.Checkout.Session) => {
       paymentIntentId: session.payment_intent as string,
     });
 
+  // Create new address records first
+  let newShippingAddress = null;
+  let newBillingAddress = null;
+
+  if (shippingAddress?.formatted) {
+    newShippingAddress = await db.address.create({
+      data: {
+        street: shippingAddress.street,
+        city: shippingAddress.city,
+        state: shippingAddress.state,
+        postalCode: shippingAddress.postalCode,
+        country: shippingAddress.country,
+        additional: shippingAddress.additional,
+        formatted: shippingAddress.formatted,
+        phone: shippingAddress.phone,
+        firstName: shippingAddress.firstName,
+        lastName: shippingAddress.lastName,
+      },
+    });
+  }
+
+  if (billingAddress?.formatted && !sameAddress) {
+    newBillingAddress = await db.address.create({
+      data: {
+        street: billingAddress.street,
+        city: billingAddress.city,
+        state: billingAddress.state,
+        postalCode: billingAddress.postalCode,
+        country: billingAddress.country,
+        additional: billingAddress.additional,
+        formatted: billingAddress.formatted,
+        phone: billingAddress.phone,
+        firstName: billingAddress.firstName,
+        lastName: billingAddress.lastName,
+      },
+    });
+  }
+
   const order = await db.order.create({
     data: {
       email,
@@ -122,8 +160,10 @@ export const webhookDataToOrder = async (session: Stripe.Checkout.Session) => {
       shippingInCents: checkoutSessionData.totals.shipping ?? 0,
       feeInCents: processorFee,
       customerId: customer?.id ?? "",
-      shippingAddressId: shippingAddress?.id ?? "",
-      billingAddressId: billingAddress?.id ?? "",
+      shippingAddressId: newShippingAddress?.id ?? "",
+      billingAddressId: sameAddress
+        ? newShippingAddress?.id
+        : (newBillingAddress?.id ?? ""),
       orderItems: { create: orderItems },
       areAddressesSame: sameAddress,
       metadata: { ...checkoutSessionData.orderMetadata },
@@ -144,42 +184,6 @@ export const webhookDataToOrder = async (session: Stripe.Checkout.Session) => {
       isEditable: false,
     },
   });
-
-  if (shippingAddress?.formatted) {
-    await db.address.create({
-      data: {
-        street: shippingAddress.street,
-        city: shippingAddress.city,
-        state: shippingAddress.state,
-        postalCode: shippingAddress.postalCode,
-        country: shippingAddress.country,
-        additional: shippingAddress.additional,
-        formatted: shippingAddress.formatted,
-        phone: shippingAddress.phone,
-        firstName: shippingAddress.firstName,
-        lastName: shippingAddress.lastName,
-        shippingOrder: { connect: { id: order.id } },
-      },
-    });
-  }
-
-  if (billingAddress?.formatted) {
-    await db.address.create({
-      data: {
-        street: billingAddress.street,
-        city: billingAddress.city,
-        state: billingAddress.state,
-        postalCode: billingAddress.postalCode,
-        country: billingAddress.country,
-        additional: billingAddress.additional,
-        formatted: billingAddress.formatted,
-        phone: billingAddress.phone,
-        firstName: billingAddress.firstName,
-        lastName: billingAddress.lastName,
-        billingOrder: { connect: { id: order.id } },
-      },
-    });
-  }
 
   await db.fulfillment.create({
     data: {

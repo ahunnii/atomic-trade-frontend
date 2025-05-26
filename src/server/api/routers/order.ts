@@ -1,7 +1,7 @@
-import { z } from "zod";
-import { env } from "~/env";
-
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
+import { z } from "zod";
+
+import { env } from "~/env";
 
 export const orderRouter = createTRPCRouter({
   getAll: protectedProcedure.query(async ({ ctx }) => {
@@ -31,7 +31,13 @@ export const orderRouter = createTRPCRouter({
         customerId: customer?.id,
         id: input,
       },
-      include: { fulfillment: true },
+      include: {
+        fulfillment: true,
+        shippingAddress: true,
+        billingAddress: true,
+        customer: true,
+        orderItems: true,
+      },
     });
 
     return order;

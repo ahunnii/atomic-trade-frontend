@@ -1,8 +1,10 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { clearCartId, getCartId } from "~/server/actions/cart";
 import { auth } from "~/server/auth";
 import { db } from "~/server/db";
 
+import type { StoreOrder } from "@atomic-trade/payments";
 import { CompletedOrder } from "@atomic-trade/payments";
 
 type Props = { searchParams: Promise<{ session_id?: string }> };
@@ -27,12 +29,32 @@ export default async function SuccessPage({ searchParams }: Props) {
         },
       },
     },
-    include: { fulfillment: true },
+    include: {
+      fulfillment: true,
+      shippingAddress: true,
+      billingAddress: true,
+      customer: true,
+      orderItems: true,
+    },
   });
+
+  const handleCartCleanup = async () => {
+    const cartId = await getCartId();
+    if (cartId) {
+      await db.cartItem.deleteMany({
+        where: { cartId: cartId },
+      });
+    }
+  };
+
   return (
     <div className="page-container">
       <div className="flex flex-col items-center justify-center space-y-6">
-        <CompletedOrder session_id={session_id ?? ""} order={order ?? null} />
+        <CompletedOrder
+          session_id={session_id ?? ""}
+          order={(order as unknown as StoreOrder) ?? null}
+          handleCartCleanup={handleCartCleanup}
+        />
         <Link
           href="/collections/all-products"
           className="group relative mt-8 block text-center text-base font-medium"
