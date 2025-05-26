@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { stripeClient } from "~/lib/payments/clients/stripe";
+
+import { stripeClient } from "@atomic-trade/payments";
 
 export async function POST(request: NextRequest) {
   try {
@@ -7,13 +8,13 @@ export async function POST(request: NextRequest) {
       amountInCents: number;
     };
 
-    const paymentIntent = await stripeClient.paymentIntents.create({
+    const paymentIntent = await stripeClient?.paymentIntents.create({
       amount: amountInCents,
       currency: "usd",
       automatic_payment_methods: { enabled: true },
     });
 
-    return NextResponse.json({ clientSecret: paymentIntent.client_secret });
+    return NextResponse.json({ clientSecret: paymentIntent?.client_secret });
   } catch (error) {
     console.error("Internal Error:", error);
     // Handle other errors (e.g., network issues, parsing errors)

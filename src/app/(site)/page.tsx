@@ -1,9 +1,9 @@
 import type { BlogPost, Collection } from "@prisma/client";
-import { ProductGrid } from "~/app/_components/product-grid";
-
-import { ImageHero } from "~/components/layout/image-hero";
 
 import { api } from "~/trpc/server";
+import { ImageHero } from "~/components/layout/image-hero";
+import { ProductGrid } from "~/app/_components/product-grid";
+
 import BlogPreviewSection from "../_components/blog-preview-section";
 import CallToActionSection from "../_components/call-to-action-section";
 import CollectionSection from "../_components/collection-section";
@@ -13,7 +13,7 @@ export default async function Home() {
 
   const collections = await api.collection.getAll();
   const products = await api.product.getAll();
-  const blogPreviews = await api.blog.getPreviews();
+  const blogPreviews = await api.blog.getAllPreviews();
 
   return (
     <>

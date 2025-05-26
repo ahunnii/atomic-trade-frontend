@@ -1,12 +1,12 @@
 import Link from "next/link";
 import { getCartId } from "~/server/actions/cart";
+
 import { api } from "~/trpc/server";
+
 import { CartClient } from "./_components/cart-client";
 import { CartSummaryClient } from "./_components/cart-summary-client";
 
-export const metadata = {
-  title: "Cart",
-};
+export const metadata = { title: "Cart" };
 
 export default async function CartPage() {
   const cartId = await getCartId();
@@ -14,9 +14,9 @@ export default async function CartPage() {
   const isEmpty = !cart || cart.cartItems.length === 0;
 
   return (
-    <div className="container mx-auto min-h-[80svh] px-4 py-8">
+    <div className="page-container">
       <div className="flex flex-col justify-between pb-4">
-        <h1 className="mb-4 text-center text-4xl font-bold">Your Cart</h1>
+        <h1 className="page-title">Your Cart</h1>
         <Link
           href="/collections/all-products"
           className="group relative mb-4 block text-center text-base font-medium"

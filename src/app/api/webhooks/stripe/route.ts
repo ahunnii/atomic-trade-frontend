@@ -3,10 +3,10 @@
 
 // https://github.com/vercel/nextjs-subscription-payments/blob/main/app/api/webhooks/route.ts
 
-import type Stripe from "stripe";
+import type { Stripe } from "@atomic-trade/payments";
+import { stripeClient } from "@atomic-trade/payments";
 
 import { env } from "~/env";
-import { stripeClient } from "~/lib/payments/clients/stripe";
 import { api } from "~/trpc/server";
 
 const relevantEvents = new Set([
@@ -27,6 +27,10 @@ export async function POST(req: Request) {
   const sig = req.headers.get("stripe-signature")!;
   const webhookSecret = env.STRIPE_WEBHOOK_SECRET;
   let event: Stripe.Event;
+
+  if (!stripeClient) {
+    return new Response("Stripe client not found.", { status: 400 });
+  }
 
   try {
     if (!sig || !webhookSecret)

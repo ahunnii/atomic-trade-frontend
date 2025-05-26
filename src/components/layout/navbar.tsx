@@ -1,7 +1,14 @@
 "use server";
 
+import Image from "next/image";
+import { getCartId } from "~/server/actions/cart";
+import { auth as authClient } from "~/server/auth";
 import { Book, Menu, Sunset, Trees, Zap } from "lucide-react";
 
+import type { Store } from "@prisma/client";
+
+import { env } from "~/env";
+import { api, HydrateClient } from "~/trpc/server";
 import {
   Accordion,
   AccordionContent,
@@ -24,13 +31,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "~/components/ui/sheet";
-import { getCartId } from "~/server/actions/cart";
-import { auth as authClient } from "~/server/auth";
-import { api, HydrateClient } from "~/trpc/server";
 
-import type { Store } from "@prisma/client";
-import Image from "next/image";
-import { env } from "~/env";
 import { ShoppingCart } from "./shopping-cart";
 import { UserDropdown } from "./user-dropdown";
 
@@ -44,7 +45,7 @@ interface MenuItem {
 
 export async function NavBar() {
   const cartId = await getCartId();
-  const collections = await api.collection.getAll();
+  const collections = await api.collection.getNavigation();
   const storeBrand = await api.store.getBrand();
   const cartItems = await api.cart.getItems(cartId ?? "");
   const session = await authClient();

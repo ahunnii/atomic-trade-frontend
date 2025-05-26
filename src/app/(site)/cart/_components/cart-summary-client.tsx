@@ -1,7 +1,9 @@
+import { formatCurrency } from "~/utils/format-currency";
+
 import type { Product, Variation } from "@prisma/client";
 
 import { api } from "~/trpc/server";
-import { formatCurrency } from "~/utils/format-currency";
+
 import { CheckoutSessionButton } from "./checkout-session-button";
 
 type CartItem = {

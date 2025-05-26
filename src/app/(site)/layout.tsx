@@ -1,8 +1,9 @@
+import { getCartId } from "~/server/actions/cart";
+
+import { api, HydrateClient } from "~/trpc/server";
 import Footer from "~/components/layout/footer";
 import { NavBar } from "~/components/layout/navbar";
 import { InitCart } from "~/components/shared/init-cart";
-import { getCartId } from "~/server/actions/cart";
-import { api, HydrateClient } from "~/trpc/server";
 
 type Props = {
   children: React.ReactNode;

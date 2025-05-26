@@ -1,45 +1,32 @@
 import type { OutputData } from "@editorjs/editorjs";
 
-import { notFound } from "next/navigation";
-import { MarkdownView } from "~/components/shared/markdown-view";
-
 import { api } from "~/trpc/server";
+import { MarkdownView } from "~/components/shared/markdown-view";
+import { NotFound } from "~/app/_components/not-found";
 
 type Props = { params: Promise<{ pageSlug: string }> };
 
 export const generateMetadata = async ({ params }: Props) => {
   const { pageSlug } = await params;
-  const post = await api.sitePage.get(pageSlug);
+  const post = await api.sitePage.getPreview(pageSlug);
 
-  if (!post) {
-    return {
-      title: "Page Not Found",
-      description: "The requested page could not be found",
-    };
-  }
-
-  return {
-    title: post.title,
-    description: `Read ${post.title} on our site`,
-  };
+  return { title: post?.title ?? "Page Not Found" };
 };
 
 export default async function SitePage({ params }: Props) {
   const { pageSlug } = await params;
   const post = await api.sitePage.get(pageSlug);
 
-  if (!post) notFound();
+  if (!post) return <NotFound />;
 
   return (
-    <article className="mx-auto w-full max-w-7xl px-4 py-8">
-      <header className="mb-8">
-        <h1 className="mb-4 text-4xl font-bold">{post.title}</h1>
-      </header>
+    <div className="page-container">
+      <h1 className="page-title">{post.title}</h1>
 
       <MarkdownView
         defaultContent={post.content as unknown as OutputData}
-        className="w-full max-w-7xl"
+        className="mx-auto w-full max-w-5xl"
       />
-    </article>
+    </div>
   );
 }

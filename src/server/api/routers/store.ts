@@ -1,28 +1,29 @@
-import { emailService } from "@atomic-trade/email";
-import { TRPCError } from "@trpc/server";
-import { z } from "zod";
-import { contactUsSchema } from "~/app/(site)/store/contact-us/_validators/schema";
-import { env } from "~/env";
-import { calculateCartDiscounts } from "~/lib/discounts/calculate-cart-discounts";
-import { NewsletterSignUpEmail } from "~/lib/email-templates/newsletter-sign-up-email";
-// import { emailService } from "~/lib/email";
-// import { ContactUsEmail } from "~/lib/email/email-templates/contact-us-email";
-// import { NewsletterConfirmedEmail } from "~/lib/email/email-templates/newsletter-confirmed-email";
-// import { NewsletterSignUpEmail } from "~/lib/email/email-templates/newsletter-sign-up-email";
-// import { NewsletterUnsubscribedEmail } from "~/lib/email/email-templates/newsletter-unsubscribed-email";
-// import { SpecialRequestEmail } from "~/lib/email/email-templates/special-request-email";
-import { ContactUsEmail } from "~/lib/email-templates/contact-us-email";
-import { NewsletterConfirmedEmail } from "~/lib/email-templates/newsletter-confirmed-email";
-import { NewsletterUnsubscribedEmail } from "~/lib/email-templates/newsletter-unsubscribed-email";
-import { SpecialRequestEmail } from "~/lib/email-templates/special-request-email";
-import { paymentService } from "~/lib/payments";
-
 import {
   createTRPCRouter,
   protectedProcedure,
   publicProcedure,
 } from "~/server/api/trpc";
 import { formatNoRespondEmail } from "~/utils/format-store-emails";
+import { z } from "zod";
+
+import { emailService } from "@atomic-trade/email";
+import { paymentService } from "@atomic-trade/payments";
+import { TRPCError } from "@trpc/server";
+
+import { env } from "~/env";
+import { calculateCartDiscounts } from "~/lib/discounts/calculate-cart-discounts";
+import { ContactUsEmail } from "~/lib/email-templates/contact-us-email";
+import { NewsletterConfirmedEmail } from "~/lib/email-templates/newsletter-confirmed-email";
+import { NewsletterSignUpEmail } from "~/lib/email-templates/newsletter-sign-up-email";
+import { NewsletterUnsubscribedEmail } from "~/lib/email-templates/newsletter-unsubscribed-email";
+import { SpecialRequestEmail } from "~/lib/email-templates/special-request-email";
+// import { emailService } from "~/lib/email";
+// import { ContactUsEmail } from "~/lib/email/email-templates/contact-us-email";
+// import { NewsletterConfirmedEmail } from "~/lib/email/email-templates/newsletter-confirmed-email";
+// import { NewsletterSignUpEmail } from "~/lib/email/email-templates/newsletter-sign-up-email";
+// import { NewsletterUnsubscribedEmail } from "~/lib/email/email-templates/newsletter-unsubscribed-email";
+// import { SpecialRequestEmail } from "~/lib/email/email-templates/special-request-email";
+import { contactUsSchema } from "~/app/(site)/store/contact-us/_validators/schema";
 
 export const storeRouter = createTRPCRouter({
   getBrand: publicProcedure.query(async ({ ctx }) => {
@@ -336,6 +337,7 @@ export const storeRouter = createTRPCRouter({
         where: { id: cartId },
         include: {
           cartItems: { include: { variant: { include: { product: true } } } },
+          customer: true,
           store: {
             include: {
               discounts: {
@@ -365,25 +367,27 @@ export const storeRouter = createTRPCRouter({
           })
         : null;
 
-      const data = calculateCartDiscounts({
-        cartItems: cart?.cartItems ?? [],
-        discounts: cart?.store?.discounts ?? [],
-        collections: cart?.store?.collections ?? [],
-        variants: variants.map((v) => ({
-          variantId: v.id,
-          priceInCents: v.priceInCents,
-          compareAtPriceInCents: v.compareAtPriceInCents,
-        })),
-        shippingCost: cart?.store?.flatRateAmount ?? 0,
-        customerId: cart?.customerId ?? undefined,
-        couponDiscount: couponDiscount ?? undefined,
-      });
+      // const data = calculateCartDiscounts({
+      //   cartItems: cart?.cartItems ?? [],
+      //   discounts: cart?.store?.discounts ?? [],
+      //   collections: cart?.store?.collections ?? [],
+      //   variants: variants.map((v) => ({
+      //     variantId: v.id,
+      //     priceInCents: v.priceInCents,
+      //     compareAtPriceInCents: v.compareAtPriceInCents,
+      //   })),
+      //   shippingCost: cart?.store?.flatRateAmount ?? 0,
+      //   customerId: cart?.customerId ?? undefined,
+      //   couponDiscount: couponDiscount ?? undefined,
+      // });
 
       const checkoutSession = await paymentService.createCheckoutSession({
         cartId: cart.id,
         storeId: cart.storeId,
         customerId: cart.customerId ?? undefined,
         couponCode: couponDiscount?.code ?? undefined,
+        cart: cart,
+        storeFlatRateAmount: cart?.store?.flatRateAmount ?? 0,
       });
 
       return {
@@ -391,7 +395,6 @@ export const storeRouter = createTRPCRouter({
         message: "Cart discounts calculated successfully",
       };
     }),
-
   subscribeToNewsletter: publicProcedure
     .input(z.object({ email: z.string().email() }))
     .mutation(async ({ ctx, input }) => {

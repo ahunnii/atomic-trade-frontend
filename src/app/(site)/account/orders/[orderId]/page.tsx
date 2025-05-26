@@ -1,10 +1,18 @@
 import { redirect } from "next/navigation";
-import { CompletedOrder } from "~/lib/payments/components/completed-order";
 import { auth } from "~/server/auth";
+
+import { CompletedOrder } from "@atomic-trade/payments";
+
 import { api } from "~/trpc/server";
+
+import { AccountLayout } from "../../_components/account-layout";
 
 type Props = {
   params: Promise<{ orderId: string }>;
+};
+
+export const metadata = {
+  title: "Order Details",
 };
 
 export default async function OrderPage({ params }: Props) {
@@ -18,17 +26,15 @@ export default async function OrderPage({ params }: Props) {
   }
 
   return (
-    <div className="container mx-auto min-h-[80svh] px-4 py-8">
-      <div className="flex flex-col items-center justify-center space-y-6">
-        <CompletedOrder
-          session_id={
-            (order?.metadata as { stripeCheckoutSessionId?: string | null })
-              ?.stripeCheckoutSessionId ?? null
-          }
-          orderId={order?.id ?? null}
-          backToAccount={true}
-        />
-      </div>
-    </div>
+    <AccountLayout>
+      <CompletedOrder
+        session_id={
+          (order?.metadata as { stripeCheckoutSessionId?: string | null })
+            ?.stripeCheckoutSessionId ?? null
+        }
+        order={order ?? null}
+        backToAccount={true}
+      />
+    </AccountLayout>
   );
 }

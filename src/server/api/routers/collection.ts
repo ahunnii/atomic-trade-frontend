@@ -1,13 +1,35 @@
-import { z } from "zod";
-import { env } from "~/env";
-
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
+import { z } from "zod";
+
+import { env } from "~/env";
 
 function getMinPrice(variants: { priceInCents: number }[]) {
   return Math.min(...variants.map((v) => v.priceInCents));
 }
 
 export const collectionRouter = createTRPCRouter({
+  getNavigation: publicProcedure.query(async ({ ctx }) => {
+    const storeSlug = env.STORE_NAME.toLowerCase().replace(/ /g, "-");
+
+    const collections = await ctx.db.collection.findMany({
+      where: { store: { slug: storeSlug }, status: "ACTIVE" },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+      },
+    });
+
+    return [
+      ...collections,
+      {
+        id: "all-products",
+        name: "All Products",
+        slug: "all-products",
+      },
+    ];
+  }),
+
   getAll: publicProcedure.query(async ({ ctx }) => {
     const storeSlug = env.STORE_NAME.toLowerCase().replace(/ /g, "-");
 

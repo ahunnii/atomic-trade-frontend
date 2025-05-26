@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+
 import { api } from "~/trpc/server";
 
 type Props = {
@@ -6,6 +7,8 @@ type Props = {
     token: string;
   }>;
 };
+
+export const metadata = { title: "Newsletter - Confirm" };
 
 export default async function NewsletterConfirmPage({ searchParams }: Props) {
   const { token } = await searchParams;

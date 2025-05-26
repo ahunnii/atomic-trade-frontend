@@ -1,14 +1,15 @@
 "use client";
-import type { Product, Variation } from "@prisma/client";
-import { X } from "lucide-react";
+
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { X } from "lucide-react";
 
+import type { Product, Variation } from "@prisma/client";
+
+import { env } from "~/env";
+import { api } from "~/trpc/react";
 import { LoadButton } from "~/components/common/load-button";
 import { QuantityNumberInput } from "~/components/inputs/quantity-number-input";
-import { env } from "~/env";
-
-import { api } from "~/trpc/react";
 
 type CartItem = {
   id: string;

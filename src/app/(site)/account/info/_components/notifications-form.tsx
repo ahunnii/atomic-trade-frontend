@@ -1,8 +1,8 @@
 "use client";
 
-import { Switch } from "~/components/ui/switch";
-import { useDefaultMutationActions } from "~/hooks/use-default-mutation-actions";
 import { api } from "~/trpc/react";
+import { useDefaultMutationActions } from "~/hooks/use-default-mutation-actions";
+import { Switch } from "~/components/ui/switch";
 
 type Props = {
   initialValues?: {
@@ -58,10 +58,6 @@ export const NotificationsForm = ({ initialValues }: Props) => {
               updateEmailNotifications.isPending ||
               updateSmsNotifications.isPending
             }
-            //   defaultChecked={session?.user?.smsNotifications}
-            //   onCheckedChange={(checked) => {
-            //     // TODO: Add mutation to update SMS notifications preference
-            //   }}
           />
         </div>
       </div>

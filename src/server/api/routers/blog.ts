@@ -1,17 +1,10 @@
-import type { JsonObject } from "@prisma/client/runtime/library";
-import { z } from "zod";
-import { env } from "~/env";
-
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
+import { z } from "zod";
 
-type Block = {
-  id?: string;
-  type: string;
-  data: {
-    text: string;
-    level?: number;
-  };
-};
+import { TRPCError } from "@trpc/server";
+
+import { env } from "~/env";
+import { generateBlogPreview } from "~/lib/core/blog";
 
 export const blogRouter = createTRPCRouter({
   getAll: publicProcedure.query(async ({ ctx }) => {
@@ -27,35 +20,14 @@ export const blogRouter = createTRPCRouter({
     return blogPosts;
   }),
 
-  getPreviews: publicProcedure.query(async ({ ctx }) => {
+  getAllPreviews: publicProcedure.query(async ({ ctx }) => {
     const storeSlug = env.STORE_NAME.toLowerCase().replace(/ /g, "-");
 
     const blogPosts = await ctx.db.blogPost.findMany({
-      where: {
-        store: { slug: storeSlug },
-        status: "PUBLISHED",
-      },
+      where: { store: { slug: storeSlug }, status: "PUBLISHED" },
     });
 
-    const previews = blogPosts.map((post) => {
-      const blocks = (post.content as JsonObject)?.blocks;
-      const paragraphBlock = (blocks as Block[])?.find(
-        (block: { type: string }) => block.type === "paragraph",
-      );
-      const content = paragraphBlock?.data?.text
-        ?.replace(/<[^>]*>/g, "")
-        ?.replace(/&nbsp;/g, " ")
-        ?.replace(/&amp;/g, "&")
-        ?.replace(/&lt;/g, "<")
-        ?.replace(/&gt;/g, ">");
-
-      return {
-        ...post,
-        id: post.id,
-        title: post.title,
-        content: content,
-      };
-    });
+    const previews = blogPosts.map(generateBlogPreview);
 
     return previews;
   }),
@@ -63,12 +35,34 @@ export const blogRouter = createTRPCRouter({
   get: publicProcedure
     .input(z.object({ slug: z.string() }))
     .query(async ({ ctx, input }) => {
-      const storeSlug = env.STORE_NAME.toLowerCase().replace(/ /g, "-");
-
       const blogPost = await ctx.db.blogPost.findUnique({
-        where: { slug: input.slug, store: { slug: storeSlug } },
+        where: { slug: input.slug },
       });
 
       return blogPost;
+    }),
+
+  getPreview: publicProcedure
+    .input(z.string())
+    .query(async ({ ctx, input: blogSlug }) => {
+      const blogPost = await ctx.db.blogPost.findUnique({
+        where: { slug: blogSlug, status: "PUBLISHED" },
+        select: {
+          id: true,
+          title: true,
+          slug: true,
+          content: true,
+          cover: true,
+        },
+      });
+      if (!blogPost)
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Blog post not found",
+        });
+
+      const preview = generateBlogPreview(blogPost);
+
+      return preview;
     }),
 });
