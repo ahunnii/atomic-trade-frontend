@@ -6,23 +6,22 @@ import { TRPCError } from "@trpc/server";
 import { env } from "~/env";
 import { generateBlogPreview } from "~/lib/core/blog";
 
+const storeSlug = env.STORE_NAME.toLowerCase().replace(/ /g, "-");
+
 export const blogRouter = createTRPCRouter({
   getAll: publicProcedure.query(async ({ ctx }) => {
-    const storeSlug = env.STORE_NAME.toLowerCase().replace(/ /g, "-");
-
     const blogPosts = await ctx.db.blogPost.findMany({
       where: {
         store: { slug: storeSlug },
         status: "PUBLISHED",
       },
+      orderBy: { createdAt: "desc" },
     });
 
     return blogPosts;
   }),
 
   getAllPreviews: publicProcedure.query(async ({ ctx }) => {
-    const storeSlug = env.STORE_NAME.toLowerCase().replace(/ /g, "-");
-
     const blogPosts = await ctx.db.blogPost.findMany({
       where: { store: { slug: storeSlug }, status: "PUBLISHED" },
     });

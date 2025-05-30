@@ -1,4 +1,5 @@
 import type { OutputData } from "@editorjs/editorjs";
+import { paymentService } from "@atomic-trade/payments";
 
 import { api } from "~/trpc/server";
 import { MarkdownView } from "~/components/shared/markdown-view";

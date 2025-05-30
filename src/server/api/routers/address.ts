@@ -1,8 +1,7 @@
+import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { z } from "zod";
 
 import { addressValidator } from "~/lib/validators/geocoding";
-
-import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 
 export const addressRouter = createTRPCRouter({
   get: protectedProcedure
@@ -24,9 +23,7 @@ export const addressRouter = createTRPCRouter({
         where: { email: ctx.session.user.email! },
       });
 
-      if (!customer) {
-        throw new Error("Customer not found");
-      }
+      if (!customer) throw new Error("Customer not found");
 
       const address = await ctx.db.address.update({
         where: { id },
@@ -52,9 +49,7 @@ export const addressRouter = createTRPCRouter({
         where: { email: ctx.session.user.email! },
       });
 
-      if (!customer) {
-        throw new Error("Customer not found");
-      }
+      if (!customer) throw new Error("Customer not found");
 
       const address = await ctx.db.address.create({
         data: { ...input, customer: { connect: { id: customer.id } } },
@@ -79,9 +74,7 @@ export const addressRouter = createTRPCRouter({
         where: { email: ctx.session.user.email! },
       });
 
-      if (!customer) {
-        throw new Error("Customer not found");
-      }
+      if (!customer) throw new Error("Customer not found");
 
       const address = await ctx.db.address.delete({
         where: { id: addressId, customerId: customer.id },
@@ -92,15 +85,15 @@ export const addressRouter = createTRPCRouter({
           where: { customerId: customer.id, NOT: { id: address.id } },
         });
 
-        if (defaultAddress) {
+        if (defaultAddress)
           await ctx.db.address.update({
             where: { id: defaultAddress.id },
             data: { isDefault: true },
           });
-        }
       }
 
       return {
+        data: address,
         message: "Address deleted successfully",
       };
     }),

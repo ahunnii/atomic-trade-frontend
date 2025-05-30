@@ -85,9 +85,8 @@ export async function POST(req: Request) {
           //     // );
           //   }
           if (checkoutSession.mode === "payment") {
-            await api.payment.createOrderFromCheckoutSession({
+            await api.payment.handleWebhookCheckoutSession({
               session: checkoutSession,
-              type: "stripe",
             });
           }
           break;

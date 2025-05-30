@@ -6,11 +6,10 @@ import { env } from "~/env";
 function getMinPrice(variants: { priceInCents: number }[]) {
   return Math.min(...variants.map((v) => v.priceInCents));
 }
+const storeSlug = env.STORE_NAME.toLowerCase().replace(/ /g, "-");
 
 export const collectionRouter = createTRPCRouter({
   getNavigation: publicProcedure.query(async ({ ctx }) => {
-    const storeSlug = env.STORE_NAME.toLowerCase().replace(/ /g, "-");
-
     const collections = await ctx.db.collection.findMany({
       where: { store: { slug: storeSlug }, status: "ACTIVE" },
       select: {
@@ -31,19 +30,13 @@ export const collectionRouter = createTRPCRouter({
   }),
 
   getAll: publicProcedure.query(async ({ ctx }) => {
-    const storeSlug = env.STORE_NAME.toLowerCase().replace(/ /g, "-");
-
     const collections = await ctx.db.collection.findMany({
       where: {
         store: { slug: storeSlug },
         status: "ACTIVE",
       },
-      include: {
-        products: { include: { variants: true } },
-      },
+      include: { products: { include: { variants: true } } },
     });
-
-    //Tack on "All Products" to the collections
 
     const allProducts = await ctx.db.product.findMany({
       where: {
@@ -75,8 +68,6 @@ export const collectionRouter = createTRPCRouter({
       }),
     )
     .query(async ({ ctx, input }) => {
-      const storeSlug = env.STORE_NAME.toLowerCase().replace(/ /g, "-");
-
       if (input.slug === "featured-products") {
         const featuredProducts = await ctx.db.product.findMany({
           where: {
@@ -163,21 +154,6 @@ export const collectionRouter = createTRPCRouter({
           },
           include: { variants: true },
         });
-
-        // Sort products by their lowest variant price if price sorting is requested
-        // if (input.sortBy === "price-asc" || input.sortBy === "price-desc") {
-        //   products.sort((a, b) => {
-        //     const aMinPrice = Math.min(
-        //       ...a.variants.map((v) => v.priceInCents),
-        //     );
-        //     const bMinPrice = Math.min(
-        //       ...b.variants.map((v) => v.priceInCents),
-        //     );
-        //     return input.sortBy === "price-asc"
-        //       ? aMinPrice - bMinPrice
-        //       : bMinPrice - aMinPrice;
-        //   });
-        // }
 
         const sortedProducts = products.sort((a, b) => {
           const aMin = getMinPrice(a.variants);

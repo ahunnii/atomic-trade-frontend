@@ -1,7 +1,5 @@
-import { z } from "zod";
-import { env } from "~/env";
-
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
+import { z } from "zod";
 
 export const cartRouter = createTRPCRouter({
   getItems: publicProcedure.input(z.string()).query(async ({ ctx, input }) => {
@@ -14,9 +12,8 @@ export const cartRouter = createTRPCRouter({
       cart?.cartItems.reduce((sum, item) => sum + item.quantity, 0) ?? 0;
     return totalItems;
   }),
-  get: publicProcedure.input(z.string()).query(async ({ ctx, input }) => {
-    const storeSlug = env.STORE_NAME.toLowerCase().replace(/ /g, "-");
 
+  get: publicProcedure.input(z.string()).query(async ({ ctx, input }) => {
     // Find the guest cart by ID
     const guestCart = await ctx.db.cart.findUnique({
       where: { id: input },
@@ -108,121 +105,7 @@ export const cartRouter = createTRPCRouter({
     return customerCart || guestCart;
   }),
 
-  create: publicProcedure.mutation(async ({ ctx }) => {
-    const storeSlug = env.STORE_NAME.toLowerCase().replace(/ /g, "-");
-
-    const store = await ctx.db.store.findUnique({
-      where: { slug: storeSlug },
-    });
-
-    if (ctx.session?.user?.email) {
-      const customer = await ctx.db.customer.findUnique({
-        where: { email: ctx.session.user.email },
-      });
-
-      if (customer) {
-        const cart = await ctx.db.cart.create({
-          data: { customerId: customer.id, storeId: store?.id ?? "" },
-        });
-
-        return {
-          data: cart,
-          message: "Cart created successfully",
-        };
-      }
-    }
-
-    const cart = await ctx.db.cart.create({
-      data: { storeId: store?.id ?? "" },
-    });
-
-    return {
-      data: cart,
-      message: "Cart created successfully",
-    };
-  }),
-
   update: publicProcedure
-    .input(
-      z.object({
-        cartId: z.string(),
-        variantId: z.string(),
-        quantity: z.number(),
-      }),
-    )
-    .mutation(async ({ ctx, input }) => {
-      const storeSlug = env.STORE_NAME.toLowerCase().replace(/ /g, "-");
-      const store = await ctx.db.store.findUnique({
-        where: { slug: storeSlug },
-      });
-
-      const { cartId, variantId, quantity } = input;
-
-      const cart = await ctx.db.cart.findUnique({
-        where: { id: cartId },
-        include: { cartItems: true },
-      });
-
-      if (!cart) {
-        return {
-          data: null,
-          message: "Cart not found",
-        };
-      }
-
-      const cartItem = cart.cartItems.find(
-        (item) => item.variantId === variantId,
-      );
-
-      if (cartItem) {
-        if (quantity === 0) {
-          // Remove cart item if quantity is 0
-          await ctx.db.cartItem.delete({
-            where: { id: cartItem.id },
-          });
-
-          return {
-            data: null,
-            message: "Cart item removed successfully",
-          };
-        } else {
-          // Update existing cart item
-          const updatedItem = await ctx.db.cartItem.update({
-            where: { id: cartItem.id },
-            data: { quantity: cartItem.quantity + quantity },
-          });
-
-          return {
-            data: updatedItem,
-            message: "Cart item updated successfully",
-          };
-        }
-      } else {
-        // Don't create new item if quantity is 0
-        if (quantity === 0) {
-          return {
-            data: null,
-            message: "No cart item to remove",
-          };
-        }
-
-        // Create new cart item
-        const newItem = await ctx.db.cartItem.create({
-          data: {
-            cartId: cart.id,
-            variantId,
-            quantity,
-          },
-        });
-
-        return {
-          data: newItem,
-          message: "Cart item created successfully",
-        };
-      }
-    }),
-
-  addItem: publicProcedure
     .input(
       z.object({
         cartId: z.string(),
@@ -398,19 +281,6 @@ export const cartRouter = createTRPCRouter({
       return {
         data: null,
         message: "Cart item removed successfully",
-      };
-    }),
-
-  delete: publicProcedure
-    .input(z.string())
-    .mutation(async ({ ctx, input: cartId }) => {
-      await ctx.db.cart.delete({
-        where: { id: cartId },
-      });
-
-      return {
-        data: null,
-        message: "Cart deleted successfully",
       };
     }),
 });

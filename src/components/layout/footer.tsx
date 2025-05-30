@@ -113,13 +113,21 @@ const Footer: React.FC = async () => {
 
         {/* Company Info Section */}
         <div className="col-span-2">
-          <h3 className="mb-4 text-lg font-bold">ABOUT US</h3>
+          <h3 className="mb-4 text-lg font-bold">
+            ATOMIC TRADE X {storeBrand?.name.toUpperCase()}
+          </h3>
+
+          <p className="mb-4">
+            We partnered with Atomic Trade to bring our products and passions to
+            you!
+          </p>
           <p className="mb-4">
             <strong>Atomic Trade</strong> is about breaking commerce down to its
             smallest, most just components — so that every creator, every
             ecosystem, and every community retains control over the value they
             generate.
           </p>
+
           <strong className="mb-4">Detroit, MI</strong>
         </div>
 

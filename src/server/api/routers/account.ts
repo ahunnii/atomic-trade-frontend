@@ -1,16 +1,16 @@
+import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { z } from "zod";
+
+import { env } from "~/env";
 import {
   basicInfoSchema,
   profileSchema,
 } from "~/app/(site)/account/info/_validators/schema";
-import { env } from "~/env";
 
-import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
+const storeSlug = env.STORE_NAME.toLowerCase().replace(/ /g, "-");
 
 export const accountRouter = createTRPCRouter({
   get: protectedProcedure.query(async ({ ctx }) => {
-    const storeSlug = env.STORE_NAME.toLowerCase().replace(/ /g, "-");
-
     const customerProfile = await ctx.db.customer.findUnique({
       where: {
         store: { slug: storeSlug },
@@ -26,12 +26,8 @@ export const accountRouter = createTRPCRouter({
     .input(profileSchema)
     .mutation(async ({ ctx, input }) => {
       const customerProfile = await ctx.db.customer.update({
-        where: {
-          email: ctx.session.user.email!,
-        },
-        data: {
-          ...input,
-        },
+        where: { email: ctx.session.user.email! },
+        data: { ...input },
       });
 
       return {
@@ -44,12 +40,8 @@ export const accountRouter = createTRPCRouter({
     .input(basicInfoSchema)
     .mutation(async ({ ctx, input }) => {
       const customerProfile = await ctx.db.customer.update({
-        where: {
-          email: ctx.session.user.email!,
-        },
-        data: {
-          ...input,
-        },
+        where: { email: ctx.session.user.email! },
+        data: { ...input },
       });
 
       return {

@@ -381,14 +381,15 @@ export const storeRouter = createTRPCRouter({
       //   couponDiscount: couponDiscount ?? undefined,
       // });
 
-      const checkoutSession = await paymentService.createCheckoutSession({
-        cartId: cart.id,
-        storeId: cart.storeId,
-        customerId: cart.customerId ?? undefined,
-        couponCode: couponDiscount?.code ?? undefined,
-        cart: cart,
-        storeFlatRateAmount: cart?.store?.flatRateAmount ?? 0,
-      });
+      const checkoutSession =
+        await paymentService.checkout.createCheckoutSession({
+          cartId: cart.id,
+          storeId: cart.storeId,
+          customerId: cart.customerId ?? undefined,
+          couponCode: couponDiscount?.code ?? undefined,
+          cart: cart,
+          storeFlatRateAmount: cart?.store?.flatRateAmount ?? 0,
+        });
 
       return {
         checkoutSession,

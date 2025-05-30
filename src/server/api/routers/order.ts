@@ -16,6 +16,9 @@ export const orderRouter = createTRPCRouter({
         store: { slug: storeSlug },
         email: ctx.session?.user?.email,
       },
+      orderBy: {
+        createdAt: "desc",
+      },
     });
 
     return orders;
